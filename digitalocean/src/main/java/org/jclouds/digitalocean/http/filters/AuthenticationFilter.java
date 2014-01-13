@@ -37,6 +37,9 @@ import com.google.common.base.Supplier;
 @Singleton
 public class AuthenticationFilter implements HttpRequestFilter {
 
+   public static final String IDENTITY_PARAM = "client_id";
+   public static final String CREDENTIAL_PARAM = "api_key";
+
    private final Supplier<Credentials> credentials;
 
    @Inject
@@ -47,8 +50,8 @@ public class AuthenticationFilter implements HttpRequestFilter {
    @Override
    public HttpRequest filter(HttpRequest request) throws HttpException {
       Credentials creds = credentials.get();
-      return request.toBuilder().addQueryParam("client_id", creds.identity).addQueryParam("api_key", creds.credential)
-            .build();
+      return request.toBuilder().addQueryParam(IDENTITY_PARAM, creds.identity)
+            .addQueryParam(CREDENTIAL_PARAM, creds.credential).build();
    }
 
 }
