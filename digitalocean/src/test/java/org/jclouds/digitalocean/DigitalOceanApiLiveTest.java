@@ -21,8 +21,10 @@ import static org.testng.Assert.assertTrue;
 import java.util.List;
 
 import org.jclouds.apis.BaseApiLiveTest;
-import org.jclouds.digitalocean.DigitalOceanApi;
+import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.domain.Region;
+import org.jclouds.digitalocean.domain.Size;
 import org.testng.annotations.Test;
 
 /**
@@ -39,5 +41,23 @@ public class DigitalOceanApiLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
       List<Image> images = api.listImages();
 
       assertTrue(images.size() > 0, "Image list should not be empty");
+   }
+
+   public void testListRegions() {
+      List<Region> regions = api.listRegions();
+
+      assertTrue(regions.size() > 0, "Region list should not be empty");
+   }
+
+   public void testListSizes() {
+      List<Size> sizes = api.listSizes();
+
+      assertTrue(sizes.size() > 0, "Size list should not be empty");
+   }
+
+   public void testListDroplets() {
+      List<Droplet> droplets = api.listDroplets();
+
+      assertTrue(droplets.size() > 0, "Droplets list should not be empty");
    }
 }

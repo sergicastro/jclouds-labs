@@ -23,7 +23,10 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.domain.Region;
+import org.jclouds.digitalocean.domain.Size;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
 import org.testng.annotations.Test;
 
@@ -37,22 +40,80 @@ import com.squareup.okhttp.mockwebserver.RecordedRequest;
 @Test(groups = "unit", testName = "DigitalOceanMockTest")
 public class DigitalOceanMockTest extends BaseDigitalOceanMockTest<DigitalOceanApi> {
 
+   private void mockResponse(final MockWebServer server, final String jsonBody) {
+      server.enqueue(new MockResponse().setBody(payloadFromResource(jsonBody)));
+   }
+
+   private void assertRequest(final MockWebServer server, final String path) throws InterruptedException {
+      RecordedRequest request = server.takeRequest();
+
+      assertEquals(request.getRequestLine(), "GET " + urlWithCredentials(path) + " HTTP/1.1");
+      assertEquals(request.getHeader(HttpHeaders.ACCEPT), MediaType.APPLICATION_JSON);
+   }
+
    public void testListImages() throws Exception {
       MockWebServer server = mockWebServer();
-      server.enqueue(new MockResponse().setBody(payloadFromResource("/images.json")));
-
       try {
          DigitalOceanApi api = api(server.getUrl("/"));
+         mockResponse(server, "/images.json");
+
          List<Image> images = api.listImages();
 
-         // Verify the generated request
-         RecordedRequest request = server.takeRequest();
+         assertRequest(server, "/images");
 
-         assertEquals(request.getRequestLine(), "GET " + urlWithCredentials("/images") + " HTTP/1.1");
-         assertEquals(request.getHeader(HttpHeaders.ACCEPT), MediaType.APPLICATION_JSON);
-
-         // Verify the response ir properly parsed
+         // Verify the response is properly parsed
          assertEquals(images.size(), 3);
+      } finally {
+         server.shutdown();
+      }
+   }
+
+   public void testListRegions() throws Exception {
+      MockWebServer server = mockWebServer();
+      try {
+         DigitalOceanApi api = api(server.getUrl("/"));
+         mockResponse(server, "/regions.json");
+
+         List<Region> regions = api.listRegions();
+
+         assertRequest(server, "/regions");
+
+         // Verify the response is properly parsed
+         assertEquals(regions.size(), 4);
+      } finally {
+         server.shutdown();
+      }
+   }
+
+   public void testListSizes() throws Exception {
+      MockWebServer server = mockWebServer();
+      try {
+         DigitalOceanApi api = api(server.getUrl("/"));
+         mockResponse(server, "/sizes.json");
+
+         List<Size> sizes = api.listSizes();
+
+         assertRequest(server, "/sizes");
+
+         // Verify the response is properly parsed
+         assertEquals(sizes.size(), 4);
+      } finally {
+         server.shutdown();
+      }
+   }
+
+   public void testListDroplets() throws Exception {
+      MockWebServer server = mockWebServer();
+      try {
+         DigitalOceanApi api = api(server.getUrl("/"));
+         mockResponse(server, "/droplets.json");
+
+         List<Droplet> sizes = api.listDroplets();
+
+         assertRequest(server, "/droplets");
+
+         // Verify the response is properly parsed
+         assertEquals(sizes.size(), 1);
       } finally {
          server.shutdown();
       }

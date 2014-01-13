@@ -24,7 +24,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.domain.Region;
+import org.jclouds.digitalocean.domain.Size;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.SelectJson;
@@ -42,4 +45,19 @@ public interface DigitalOceanApi extends Closeable {
    @Path("/images")
    @SelectJson("images")
    List<Image> listImages();
+
+   @GET
+   @Path("/regions")
+   @SelectJson("regions")
+   List<Region> listRegions();
+
+   @GET
+   @Path("/sizes")
+   @SelectJson("sizes")
+   List<Size> listSizes();
+
+   @GET
+   @Path("/droplets")
+   @SelectJson("droplets")
+   List<Droplet> listDroplets();
 }
