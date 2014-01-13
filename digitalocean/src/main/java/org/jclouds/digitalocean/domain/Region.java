@@ -16,27 +16,27 @@
  */
 package org.jclouds.digitalocean.domain;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.beans.ConstructorProperties;
 
+import org.jclouds.javax.annotation.Nullable;
+
 /**
- * A Region
+ * A Region.
  * 
  * @author Sergi Castro
- * 
  */
 public class Region {
 
-   private String id;
-
-   private String name;
-
-   private String slug;
+   private final String id;
+   private final String name;
+   private final String slug;
 
    @ConstructorProperties({ "id", "name", "slug" })
-   public Region(final String id, final String name, final String slug) {
-      super();
-      this.id = id;
-      this.name = name;
+   public Region(String id, String name, @Nullable String slug) {
+      this.id = checkNotNull(id, "id cannot be null");
+      this.name = checkNotNull(name, "name cannot be null");
       this.slug = slug;
    }
 
@@ -54,7 +54,7 @@ public class Region {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
+      int prime = 31;
       int result = 1;
       result = prime * result + (id == null ? 0 : id.hashCode());
       result = prime * result + (name == null ? 0 : name.hashCode());
@@ -63,7 +63,7 @@ public class Region {
    }
 
    @Override
-   public boolean equals(final Object obj) {
+   public boolean equals(Object obj) {
       if (this == obj) {
          return true;
       }

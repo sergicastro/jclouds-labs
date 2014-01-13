@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.digitalocean.config.DigitalOceanHttpApiModule;
+import org.jclouds.digitalocean.config.DigitalOceanParserModule;
 import org.jclouds.rest.internal.BaseHttpApiMetadata;
 
 import com.google.common.collect.ImmutableSet;
@@ -55,16 +56,15 @@ public class DigitalOceanApiMetadata extends BaseHttpApiMetadata<DigitalOceanApi
 
       protected Builder() {
          super(DigitalOceanApi.class);
-         id("digitalocean")
-               .name("DigitalOcean API")
-               .identityName("Client Id")
-               .credentialName("API Key")
+         id("digitalocean").name("DigitalOcean API").identityName("Client Id").credentialName("API Key")
                .documentation(URI.create("https://cloud.digitalocean.com/api_access"))
                .defaultEndpoint("https://api.digitalocean.com")
                .defaultProperties(DigitalOceanApiMetadata.defaultProperties())
                // Uncomment once the ComputeService is implemented
                // .view(typeToken(ComputeServiceContext.class))
-               .defaultModules(ImmutableSet.<Class<? extends Module>> of(DigitalOceanHttpApiModule.class));
+               .defaultModules(ImmutableSet.<Class<? extends Module>> of( //
+                     DigitalOceanHttpApiModule.class, //
+                     DigitalOceanParserModule.class));
       }
 
       @Override

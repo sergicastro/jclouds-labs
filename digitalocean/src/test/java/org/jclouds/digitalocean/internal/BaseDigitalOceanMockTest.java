@@ -20,29 +20,33 @@ import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor
 import static org.jclouds.digitalocean.http.filters.AuthenticationFilter.CREDENTIAL_PARAM;
 import static org.jclouds.digitalocean.http.filters.AuthenticationFilter.IDENTITY_PARAM;
 import static org.jclouds.util.Strings2.toStringAndClose;
+import static org.testng.Assert.assertEquals;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
 import org.jclouds.ContextBuilder;
 import org.jclouds.concurrent.config.ExecutorServiceModule;
+import org.jclouds.digitalocean.DigitalOceanApi;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.TypeToken;
 import com.google.inject.Module;
+import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 /**
  * Base class for all DigitalOcean mock tests.
  * 
  * @author Sergi Castro
- * 
  */
-public class BaseDigitalOceanMockTest<A extends Closeable> {
+public class BaseDigitalOceanMockTest {
    private final Set<Module> modules = ImmutableSet.<Module> of(new ExecutorServiceModule(sameThreadExecutor(),
          sameThreadExecutor()));
 
@@ -52,14 +56,12 @@ public class BaseDigitalOceanMockTest<A extends Closeable> {
       provider = "digitalocean";
    }
 
-   @SuppressWarnings("serial")
-   public A api(URL url) {
+   public DigitalOceanApi api(URL url) {
       return ContextBuilder.newBuilder(provider) //
             .credentials("clientid", "apikey") //
             .endpoint(url.toString()) //
             .modules(modules) //
-            .buildApi(new TypeToken<A>(getClass()) {
-            });
+            .buildApi(DigitalOceanApi.class);
    }
 
    public static MockWebServer mockWebServer() throws IOException {
@@ -76,7 +78,17 @@ public class BaseDigitalOceanMockTest<A extends Closeable> {
       }
    }
 
-   protected static String urlWithCredentials(String path) {
+   protected MockResponse mockResponse(final String jsonBody) {
+      return new MockResponse().setBody(payloadFromResource(jsonBody));
+   }
+
+   protected static void assertRequestHasCommonFields(final RecordedRequest request, final String path)
+         throws InterruptedException {
+      assertEquals(request.getRequestLine(), "GET " + urlWithCredentials(path) + " HTTP/1.1");
+      assertEquals(request.getHeader(HttpHeaders.ACCEPT), MediaType.APPLICATION_JSON);
+   }
+
+   private static String urlWithCredentials(String path) {
       return path + "?" + IDENTITY_PARAM + "=clientid&" + CREDENTIAL_PARAM + "=apikey";
    }
 }

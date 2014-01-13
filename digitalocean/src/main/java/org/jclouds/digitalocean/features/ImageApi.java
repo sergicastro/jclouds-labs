@@ -14,52 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean;
+package org.jclouds.digitalocean.features;
 
 import java.io.Closeable;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.digitalocean.features.DropletApi;
-import org.jclouds.digitalocean.features.ImageApi;
-import org.jclouds.digitalocean.features.RegionApi;
-import org.jclouds.digitalocean.features.SizesApi;
+import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
-import org.jclouds.rest.annotations.Delegate;
 import org.jclouds.rest.annotations.RequestFilters;
+import org.jclouds.rest.annotations.SelectJson;
+
+import com.google.inject.name.Named;
 
 /**
- * Provides synchronous access to DigitalOcean API.
+ * Provides access to the Image management features.
  * 
  * @author Sergi Castro
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface DigitalOceanApi extends Closeable {
+public interface ImageApi extends Closeable {
 
    /**
-    * Returns the Droplet management API.
+    * Lists all available images.
     */
-   @Delegate
-   DropletApi getDropletApi();
-
-   /**
-    * Returns the Image management API.
-    */
-   @Delegate
-   ImageApi getImageApi();
-
-   /**
-    * Returns the Sizes management API.
-    */
-   @Delegate
-   SizesApi getSizesApi();
-
-   /**
-    * Returns the Region management API.
-    */
-   @Delegate
-   RegionApi getreRegionApi();
-
+   @Named("image:list")
+   @GET
+   @Path("/images")
+   @SelectJson("images")
+   List<Image> listImages();
 }
