@@ -24,7 +24,6 @@ import static org.jclouds.util.Strings2.toStringAndClose;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Properties;
 import java.util.Set;
 
 import org.jclouds.ContextBuilder;
@@ -54,17 +53,13 @@ public class BaseDigitalOceanMockTest<A extends Closeable> {
    }
 
    @SuppressWarnings("serial")
-   public A api(URL url, Properties overrides) {
+   public A api(URL url) {
       return ContextBuilder.newBuilder(provider) //
             .credentials("clientid", "apikey") //
             .endpoint(url.toString()) //
-            .overrides(overrides).modules(modules) //
+            .modules(modules) //
             .buildApi(new TypeToken<A>(getClass()) {
             });
-   }
-
-   public A api(URL url) {
-      return api(url, new Properties());
    }
 
    public static MockWebServer mockWebServer() throws IOException {
