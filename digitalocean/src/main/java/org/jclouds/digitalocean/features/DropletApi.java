@@ -44,6 +44,8 @@ public interface DropletApi extends Closeable {
 
    /**
     * Lists all existing droplets.
+    * 
+    * @return The list of all existing droplets.
     */
    @Named("droplet:list")
    @GET

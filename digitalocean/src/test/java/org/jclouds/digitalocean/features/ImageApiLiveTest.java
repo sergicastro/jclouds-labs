@@ -16,6 +16,8 @@
  */
 package org.jclouds.digitalocean.features;
 
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.List;
@@ -34,6 +36,8 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
    private ImageApi imageApi;
 
+   private List<Image> images;
+
    @Override
    protected void initialize() {
       super.initialize();
@@ -41,8 +45,17 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testListImages() {
-      List<Image> images = imageApi.listImages();
+      images = imageApi.listImages();
 
       assertTrue(images.size() > 0, "Image list should not be empty");
+   }
+
+   @Test(dependsOnMethods = "testListImages")
+   public void testGetImage() {
+      assertNotNull(imageApi.getImage(images.get(0).getId()), "The image should not be null");
+   }
+
+   public void testGetImageNotFound() {
+      assertNull(imageApi.getImage(-1));
    }
 }

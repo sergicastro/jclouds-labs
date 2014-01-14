@@ -44,6 +44,8 @@ public interface RegionApi extends Closeable {
 
    /**
     * Lists all available regions.
+    * 
+    * @return The list of all available regions.
     */
    @Named("region:list")
    @GET

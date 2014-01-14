@@ -44,6 +44,8 @@ public interface SizesApi extends Closeable {
 
    /**
     * Lists all available sizes.
+    * 
+    * @return The list of all available sizes.
     */
    @Named("size:list")
    @GET

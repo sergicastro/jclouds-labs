@@ -20,8 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
-import org.jclouds.javax.annotation.Nullable;
-
 /**
  * A Region.
  * 
@@ -34,10 +32,10 @@ public class Region {
    private final String slug;
 
    @ConstructorProperties({ "id", "name", "slug" })
-   public Region(String id, String name, @Nullable String slug) {
+   public Region(String id, String name, String slug) {
       this.id = checkNotNull(id, "id cannot be null");
       this.name = checkNotNull(name, "name cannot be null");
-      this.slug = slug;
+      this.slug = checkNotNull(slug, "slug cannot be null");
    }
 
    public String getId() {

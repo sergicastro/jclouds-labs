@@ -49,13 +49,21 @@ public abstract class BaseResponseParser<T extends BaseResponse, V> implements F
 
    @Override
    public V apply(HttpResponse input) {
-      T result = parser.apply(input);
-      if (result.getStatus() == Status.ERROR) {
-         throw new HttpResponseException(result.getDetails(), null, input);
+      V result = null;
+      if (hasPayload(input)) {
+         T content = parser.apply(input);
+         if (content.getStatus() == Status.ERROR) {
+            throw new HttpResponseException(content.getDetails(), null, input);
+         }
+         result = getReturnValue(content);
       }
-      return getReturnValue(result);
+      return result;
    }
 
    protected abstract V getReturnValue(T result);
+
+   private static boolean hasPayload(final HttpResponse response) {
+      return response.getPayload() != null && response.getPayload().getRawContent() != null;
+   }
 
 }

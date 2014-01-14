@@ -17,6 +17,7 @@
 package org.jclouds.digitalocean.features;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.List;
 
@@ -65,6 +66,24 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
 
          assertRequestHasCommonFields(server.takeRequest(), "/images");
          assertEquals(images.size(), 3);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testGetImageNotFound() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setStatus("404"));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         Image image = imageApi.getImage(15);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/images/15");
+         assertNull(image);
       } finally {
          api.close();
          server.shutdown();

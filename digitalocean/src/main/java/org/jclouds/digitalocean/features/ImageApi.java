@@ -22,11 +22,15 @@ import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.functions.ParseImage;
 import org.jclouds.digitalocean.functions.ParseImageList;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
+import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.ResponseParser;
 
@@ -44,9 +48,25 @@ public interface ImageApi extends Closeable {
 
    /**
     * Lists all available images.
+    * 
+    * @return The list of all available images.
     */
    @Named("image:list")
    @GET
    @ResponseParser(ParseImageList.class)
    List<Image> listImages();
+
+   /**
+    * Gets the details of the given image.
+    * 
+    * @param id The id of the image to get.
+    * @return The details of the image or <code>null</code> if no image exists
+    *         with the given id.
+    */
+   @Named("image:get")
+   @GET
+   @Path("/{id}")
+   @ResponseParser(ParseImage.class)
+   @Fallback(NullOnNotFoundOr404.class)
+   Image getImage(@PathParam("id") int id);
 }

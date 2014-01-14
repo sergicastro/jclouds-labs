@@ -28,6 +28,7 @@ import org.jclouds.http.HttpResponse;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.rest.AuthorizationException;
+import org.jclouds.rest.ResourceNotFoundException;
 
 /**
  * Parse the errors in the response and propagate an appropriate exception.
@@ -64,6 +65,9 @@ public class DigitalOceanErrorHandler implements HttpErrorHandler {
          switch (response.getStatusCode()) {
             case 401:
                exception = new AuthorizationException(message, exception);
+               break;
+            case 404:
+               exception = new ResourceNotFoundException(message, exception);
                break;
          }
       } finally {
