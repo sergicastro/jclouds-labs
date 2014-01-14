@@ -26,6 +26,7 @@ import org.jclouds.compute.domain.VolumeBuilder;
 import org.jclouds.digitalocean.domain.Size;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Transforms an {@link Size} to the jclouds portable model.
@@ -47,6 +48,11 @@ public class SizeToHardware implements Function<Size, Hardware> {
             .size(Float.valueOf(input.getDisk())) //
             .type(Type.LOCAL) // TODO: Verify the type of the disks
             .build());
+
+      ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();
+      metadata.put("costPerHour", input.getCostPerHour());
+      metadata.put("costPerMonth", input.getCostPerMonth());
+      builder.userMetadata(metadata.build());
 
       return builder.build();
    }

@@ -25,6 +25,7 @@ import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.digitalocean.domain.Image;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Transforms an {@link Image} to the jclouds portable model.
@@ -50,6 +51,10 @@ public class ImageToImage implements Function<Image, org.jclouds.compute.domain.
             .version("TODO") // TODO: Parse version from name
             .is64Bit(false) // TODO: Parse is64bit from name
             .build());
+
+      ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();
+      metadata.put("publicImage", String.valueOf(input.isPublicImage()));
+      builder.userMetadata(metadata.build());
 
       // TODO: builder.defaultCredentials
 

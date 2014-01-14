@@ -51,8 +51,8 @@ public class Size {
       this.memory = memory;
       this.cpu = cpu;
       this.disk = disk;
-      this.costPerHour = checkNotNull(name, "costPerHour cannot be null");
-      this.costPerMonth = checkNotNull(name, "costPerMonth cannot be null");
+      this.costPerHour = checkNotNull(costPerHour, "costPerHour cannot be null");
+      this.costPerMonth = checkNotNull(costPerMonth, "costPerMonth cannot be null");
    }
 
    public int getId() {
