@@ -29,6 +29,7 @@ import org.jclouds.rest.config.HttpApiModule;
  * Configures the DigitalOcean connection.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @ConfiguresHttpApi
 public class DigitalOceanHttpApiModule extends HttpApiModule<DigitalOceanApi> {

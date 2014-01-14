@@ -23,10 +23,10 @@ import org.jclouds.providers.ProviderMetadata;
 import org.jclouds.providers.internal.BaseProviderMetadata;
 
 /**
- * Implementation of {@link org.jclouds.types.ProviderMetadata} for
- * DigitalOcean.
+ * Implementation of {@link ProviderMetadata} for DigitalOcean.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class DigitalOceanProviderMetadata extends BaseProviderMetadata {
 
@@ -55,12 +55,9 @@ public class DigitalOceanProviderMetadata extends BaseProviderMetadata {
    public static class Builder extends BaseProviderMetadata.Builder {
 
       protected Builder() {
-         id("digitalocean")
-               .name("DigitalOcean Compute Services")
-               .apiMetadata(new DigitalOceanApiMetadata())
+         id("digitalocean").name("DigitalOcean Compute Services").apiMetadata(new DigitalOceanApiMetadata())
                .homepage(URI.create("https://www.digitalocean.com/"))
-               .console(URI.create("https://cloud.digitalocean.com/"))
-               .endpoint("https://api.digitalocean.com")
+               .console(URI.create("https://cloud.digitalocean.com/")).endpoint("https://api.digitalocean.com")
                .defaultProperties(DigitalOceanProviderMetadata.defaultProperties());
       }
 

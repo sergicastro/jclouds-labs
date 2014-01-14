@@ -14,22 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean;
+package org.jclouds.digitalocean.features;
 
-import org.jclouds.providers.internal.BaseProviderMetadataTest;
+import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
 import org.testng.annotations.Test;
 
 /**
- * Unit tests for the {@link DigitalOceanApiMetadata}.
+ * Live tests for the {@link EventApi} class.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
-@Test(groups = "unit", testName = "DigitalOceanProviderMetadataTest")
-public class DigitalOceanProviderMetadataTest extends BaseProviderMetadataTest {
+@Test(groups = "live", testName = "EventApiLiveTest")
+public class EventApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   public DigitalOceanProviderMetadataTest() {
-      super(new DigitalOceanProviderMetadata(), new DigitalOceanApiMetadata());
+   private EventApi eventApi;
+
+   @Override
+   protected void initialize() {
+      super.initialize();
+      eventApi = api.getEventApi();
+   }
+
+   public void testGetEvent() {
+      // TODO: Create droplet, read the event id, get event and delete the
+      // droplet
    }
 
 }

@@ -17,11 +17,12 @@
 package org.jclouds.digitalocean.features;
 
 import static org.testng.Assert.assertEquals;
-
-import java.util.List;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 import org.jclouds.digitalocean.DigitalOceanApi;
-import org.jclouds.digitalocean.domain.Droplet;
+import org.jclouds.digitalocean.domain.Event;
+import org.jclouds.digitalocean.domain.Event.Status;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
 import org.testng.annotations.Test;
 
@@ -29,26 +30,45 @@ import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
 /**
- * Mock tests for the {@link DropletApi} class.
+ * Mock tests for the {@link EventApi} class.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
-@Test(groups = "unit", testName = "DropletApiMockTest")
-public class DropletApiMockTest extends BaseDigitalOceanMockTest {
+@Test(groups = "unit", testName = "EventApiMockTest")
+public class EventApiMockTest extends BaseDigitalOceanMockTest {
 
-   public void testListDroplets() throws Exception {
+   public void testGetEvent() throws Exception {
       MockWebServer server = mockWebServer();
-      server.enqueue(new MockResponse().setBody(payloadFromResource("/droplets.json")));
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/event.json")));
 
       DigitalOceanApi api = api(server.getUrl("/"));
-      DropletApi dropletApi = api.getDropletApi();
+      EventApi eventApi = api.getEventApi();
 
       try {
-         List<Droplet> sizes = dropletApi.listDroplets();
+         Event event = eventApi.getEvent(7499);
 
-         assertRequestHasCommonFields(server.takeRequest(), "/droplets");
-         assertEquals(sizes.size(), 1);
+         assertRequestHasCommonFields(server.takeRequest(), "/events/7499");
+         assertNotNull(event);
+         assertEquals(event.getStatus(), Status.done);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testGetUnexistingEvent() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      EventApi eventApi = api.getEventApi();
+
+      try {
+         Event event = eventApi.getEvent(7499);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/events/7499");
+         assertNull(event);
       } finally {
          api.close();
          server.shutdown();

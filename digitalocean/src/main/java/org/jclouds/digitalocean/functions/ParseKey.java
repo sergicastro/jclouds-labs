@@ -17,42 +17,44 @@
 package org.jclouds.digitalocean.functions;
 
 import java.beans.ConstructorProperties;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.jclouds.digitalocean.domain.BaseResponse;
-import org.jclouds.digitalocean.domain.Size;
-import org.jclouds.digitalocean.functions.ParseSizeList.ListSizesResponse;
+import org.jclouds.digitalocean.domain.SshKey;
+import org.jclouds.digitalocean.functions.ParseKey.KeyResponse;
 import org.jclouds.http.functions.ParseJson;
 
+import com.google.inject.name.Named;
+
 /**
- * Parses a list of {@link Size} objects.
+ * Parses a list of {@link SshKey} objects.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
 @Singleton
-public class ParseSizeList extends BaseResponseParser<ListSizesResponse, List<Size>> {
+public class ParseKey extends BaseResponseParser<KeyResponse, SshKey> {
 
    @Inject
-   ParseSizeList(ParseJson<ListSizesResponse> parser) {
+   ParseKey(ParseJson<KeyResponse> parser) {
       super(parser);
    }
 
    @Override
-   protected List<Size> getReturnValue(ListSizesResponse result) {
-      return result.sizes;
+   protected SshKey getReturnValue(KeyResponse result) {
+      return result.key;
    }
 
-   public static class ListSizesResponse extends BaseResponse {
-      private final List<Size> sizes;
+   public static class KeyResponse extends BaseResponse {
+      @Named("ssh_key")
+      private final SshKey key;
 
-      @ConstructorProperties({ "status", "error_message", "message", "sizes" })
-      public ListSizesResponse(Status status, String message, String details, List<Size> sizes) {
+      @ConstructorProperties({ "status", "error_message", "message", "ssh_key" })
+      public KeyResponse(Status status, String message, String details, SshKey key) {
          super(status, message, details);
-         this.sizes = sizes;
+         this.key = key;
       }
    }
 

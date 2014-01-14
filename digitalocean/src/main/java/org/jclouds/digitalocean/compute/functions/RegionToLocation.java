@@ -16,18 +16,17 @@
  */
 package org.jclouds.digitalocean.compute.functions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.getOnlyElement;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import static com.google.common.collect.Iterables.getOnlyElement;
 
 import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.domain.Location;
 import org.jclouds.domain.LocationBuilder;
 import org.jclouds.domain.LocationScope;
 import org.jclouds.location.suppliers.all.JustProvider;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -36,6 +35,7 @@ import com.google.common.collect.ImmutableSet;
  * Transforms an {@link Region} to the jclouds portable model.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class RegionToLocation implements Function<Region, Location> {
@@ -43,7 +43,7 @@ public class RegionToLocation implements Function<Region, Location> {
    private final JustProvider justProvider;
 
    @Inject
-   public RegionToLocation(JustProvider justProvider) {
+   RegionToLocation(JustProvider justProvider) {
       this.justProvider = checkNotNull(justProvider, "justProvider cannot be null");
    }
 

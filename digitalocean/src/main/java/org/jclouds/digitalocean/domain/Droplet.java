@@ -30,8 +30,14 @@ import org.jclouds.javax.annotation.Nullable;
  * A droplet.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class Droplet {
+
+   public enum Status {
+      active
+      // TODO: Add missing droplet status
+   }
 
    private final int id;
    private final String name;
@@ -48,14 +54,14 @@ public class Droplet {
    @Named("private_ip_address")
    private final String privateIp;
    private final boolean locked;
-   private final String status; // TODO: Change to enum?
+   private final Status status;
    @Named("created_at")
    private final Date created;
 
    @ConstructorProperties({ "id", "name", "image_id", "size_id", "region_id", "backups_active", "ip_address",
          "private_ip_address", "locked", "status", "created_at" })
    public Droplet(int id, String name, int imageId, int sizeId, int regionId, boolean backupsActive, String ip,
-         @Nullable String privateIp, boolean locked, String status, Date created) throws ParseException {
+         @Nullable String privateIp, boolean locked, Status status, Date created) throws ParseException {
       this.id = id;
       this.name = checkNotNull(name, "name cannot be null");
       this.imageId = imageId;
@@ -105,7 +111,7 @@ public class Droplet {
       return locked;
    }
 
-   public String getStatus() {
+   public Status getStatus() {
       return status;
    }
 
@@ -115,7 +121,7 @@ public class Droplet {
 
    @Override
    public int hashCode() {
-      int prime = 31;
+      final int prime = 31;
       int result = 1;
       result = prime * result + (backupsActive ? 1231 : 1237);
       result = prime * result + (created == null ? 0 : created.hashCode());
@@ -189,11 +195,7 @@ public class Droplet {
       if (sizeId != other.sizeId) {
          return false;
       }
-      if (status == null) {
-         if (other.status != null) {
-            return false;
-         }
-      } else if (!status.equals(other.status)) {
+      if (status != other.status) {
          return false;
       }
       return true;

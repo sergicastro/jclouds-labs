@@ -23,6 +23,7 @@ import org.jclouds.digitalocean.DigitalOceanApi;
  * Base class for the DigitalOcean live tests.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
 

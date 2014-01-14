@@ -38,12 +38,13 @@ import com.google.common.base.Function;
  * status is not properly populated, it is the best way to handle errors.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public abstract class BaseResponseParser<T extends BaseResponse, V> implements Function<HttpResponse, V> {
 
    private final ParseJson<T> parser;
 
-   public BaseResponseParser(ParseJson<T> parser) {
+   BaseResponseParser(ParseJson<T> parser) {
       this.parser = checkNotNull(parser, "images cannot be null");
    }
 

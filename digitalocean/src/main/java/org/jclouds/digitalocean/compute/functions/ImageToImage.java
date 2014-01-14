@@ -30,6 +30,7 @@ import com.google.common.base.Function;
  * Transforms an {@link Image} to the jclouds portable model.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class ImageToImage implements Function<Image, org.jclouds.compute.domain.Image> {

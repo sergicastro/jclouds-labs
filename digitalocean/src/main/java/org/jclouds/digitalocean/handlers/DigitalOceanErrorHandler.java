@@ -34,6 +34,7 @@ import org.jclouds.rest.ResourceNotFoundException;
  * Parse the errors in the response and propagate an appropriate exception.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class DigitalOceanErrorHandler implements HttpErrorHandler {
@@ -41,7 +42,7 @@ public class DigitalOceanErrorHandler implements HttpErrorHandler {
    private final ParseJson<BaseResponse> errorParser;
 
    @Inject
-   public DigitalOceanErrorHandler(ParseJson<BaseResponse> errorParser) {
+   DigitalOceanErrorHandler(ParseJson<BaseResponse> errorParser) {
       this.errorParser = checkNotNull(errorParser, "errorParser cannot be null");
    }
 
@@ -52,13 +53,15 @@ public class DigitalOceanErrorHandler implements HttpErrorHandler {
       Exception exception = new HttpResponseException(command, response);
       String message = exception.getMessage();
 
-      try {
-         BaseResponse error = errorParser.apply(response);
-         exception = new HttpResponseException(command, response, error.toString());
-         message = error.getDetails();
-      } catch (HttpResponseException ex) {
-         // If the body can not be parsed, just continue with the default
-         // message
+      if (hasPayload(response)) {
+         try {
+            BaseResponse error = errorParser.apply(response);
+            exception = new HttpResponseException(command, response, error.toString());
+            message = error.getDetails();
+         } catch (HttpResponseException ex) {
+            // If the body can not be parsed, just continue with the default
+            // message
+         }
       }
 
       try {
@@ -73,5 +76,9 @@ public class DigitalOceanErrorHandler implements HttpErrorHandler {
       } finally {
          command.setException(exception);
       }
+   }
+
+   private static boolean hasPayload(final HttpResponse response) {
+      return response.getPayload() != null && response.getPayload().getRawContent() != null;
    }
 }

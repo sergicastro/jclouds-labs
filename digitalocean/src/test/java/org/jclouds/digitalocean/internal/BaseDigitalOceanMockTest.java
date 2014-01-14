@@ -19,6 +19,7 @@ package org.jclouds.digitalocean.internal;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static org.jclouds.digitalocean.http.filters.AuthenticationFilter.CREDENTIAL_PARAM;
 import static org.jclouds.digitalocean.http.filters.AuthenticationFilter.IDENTITY_PARAM;
+import static org.jclouds.http.utils.Queries.encodeQueryLine;
 import static org.jclouds.util.Strings2.toStringAndClose;
 import static org.testng.Assert.assertEquals;
 
@@ -35,9 +36,10 @@ import org.jclouds.digitalocean.DigitalOceanApi;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.inject.Module;
-import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -45,6 +47,7 @@ import com.squareup.okhttp.mockwebserver.RecordedRequest;
  * Base class for all DigitalOcean mock tests.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class BaseDigitalOceanMockTest {
    private final Set<Module> modules = ImmutableSet.<Module> of(new ExecutorServiceModule(sameThreadExecutor(),
@@ -78,17 +81,24 @@ public class BaseDigitalOceanMockTest {
       }
    }
 
-   protected MockResponse mockResponse(final String jsonBody) {
-      return new MockResponse().setBody(payloadFromResource(jsonBody));
-   }
-
    protected static void assertRequestHasCommonFields(final RecordedRequest request, final String path)
          throws InterruptedException {
-      assertEquals(request.getRequestLine(), "GET " + urlWithCredentials(path) + " HTTP/1.1");
-      assertEquals(request.getHeader(HttpHeaders.ACCEPT), MediaType.APPLICATION_JSON);
+      assertRequestHasParameters(request, path, ImmutableMultimap.<String, String> of());
    }
 
-   private static String urlWithCredentials(String path) {
-      return path + "?" + IDENTITY_PARAM + "=clientid&" + CREDENTIAL_PARAM + "=apikey";
+   protected static void assertRequestHasParameters(final RecordedRequest request, final String path,
+         Multimap<String, String> parameters) throws InterruptedException {
+      Multimap<String, String> allparams = ImmutableMultimap.<String, String> builder() //
+            .putAll(parameters) //
+            .put(IDENTITY_PARAM, "clientid") //
+            .put(CREDENTIAL_PARAM, "apikey") //
+            .build();
+
+      assertRequestHasAcceptHeader(request);
+      assertEquals(request.getRequestLine(), "GET " + path + "?" + encodeQueryLine(allparams) + " HTTP/1.1");
+   }
+
+   protected static void assertRequestHasAcceptHeader(final RecordedRequest request) throws InterruptedException {
+      assertEquals(request.getHeader(HttpHeaders.ACCEPT), MediaType.APPLICATION_JSON);
    }
 }
