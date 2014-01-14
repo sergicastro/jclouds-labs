@@ -20,6 +20,8 @@ import java.net.URI;
 import java.util.Properties;
 
 import org.jclouds.apis.ApiMetadata;
+import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.digitalocean.compute.config.DigitalOceanComputeServiceContextModule;
 import org.jclouds.digitalocean.config.DigitalOceanHttpApiModule;
 import org.jclouds.digitalocean.config.DigitalOceanParserModule;
 import org.jclouds.rest.internal.BaseHttpApiMetadata;
@@ -59,12 +61,12 @@ public class DigitalOceanApiMetadata extends BaseHttpApiMetadata<DigitalOceanApi
          id("digitalocean").name("DigitalOcean API").identityName("Client Id").credentialName("API Key")
                .documentation(URI.create("https://cloud.digitalocean.com/api_access"))
                .defaultEndpoint("https://api.digitalocean.com")
-               .defaultProperties(DigitalOceanApiMetadata.defaultProperties())
-               // Uncomment once the ComputeService is implemented
-               // .view(typeToken(ComputeServiceContext.class))
+               .defaultProperties(DigitalOceanApiMetadata.defaultProperties()) //
+               .view(ComputeServiceContext.class) //
                .defaultModules(ImmutableSet.<Class<? extends Module>> of( //
                      DigitalOceanHttpApiModule.class, //
-                     DigitalOceanParserModule.class));
+                     DigitalOceanParserModule.class, //
+                     DigitalOceanComputeServiceContextModule.class));
       }
 
       @Override
