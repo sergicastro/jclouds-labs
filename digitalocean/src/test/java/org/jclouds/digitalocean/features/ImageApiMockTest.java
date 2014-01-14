@@ -17,7 +17,9 @@
 package org.jclouds.digitalocean.features;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 
@@ -25,8 +27,10 @@ import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
 import org.jclouds.http.HttpResponseException;
+import org.jclouds.rest.ResourceNotFoundException;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
@@ -73,7 +77,28 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testGetImageNotFound() throws Exception {
+   public void testGetImage() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/image.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         Image image = imageApi.getImage(2);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/images/2");
+         assertNotNull(image);
+         assertEquals(image.getId(), 2);
+         assertEquals(image.getDistribution(), "Ubuntu");
+         assertEquals(image.getName(), "Automated Backup");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testGetUnexistingImage() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -85,6 +110,87 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
 
          assertRequestHasCommonFields(server.takeRequest(), "/images/15");
          assertNull(image);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testDeleteImage() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse());
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         imageApi.deleteImage(15);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/images/15/destroy");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testDeleteUnexistingImage() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         try {
+            imageApi.deleteImage(15);
+            fail("Delete image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/images/15/destroy");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testTransferUnexistingImage() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         try {
+            imageApi.transferImage(47, 23);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/images/47/transfer",
+               ImmutableMultimap.of("region_id", "23"));
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testTransferImage() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         int eventId = imageApi.transferImage(47, 23);
+
+         assertRequestHasParameters(server.takeRequest(), "/images/47/transfer",
+               ImmutableMultimap.of("region_id", "23"));
+         assertEquals(eventId, 7499);
       } finally {
          api.close();
          server.shutdown();

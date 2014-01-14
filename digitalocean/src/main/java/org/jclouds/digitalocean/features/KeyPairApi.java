@@ -99,7 +99,7 @@ public interface KeyPairApi extends Closeable {
    SshKey editKey(@PathParam("id") int id, @QueryParam("ssh_pub_key") String newPublicKey);
 
    /**
-    * Creates a new SSH key pair.
+    * Deletes an existing SSH key pair.
     * 
     * @param id The id of the key pair.
     */

@@ -29,7 +29,7 @@ import org.jclouds.http.functions.ParseJson;
 import com.google.inject.name.Named;
 
 /**
- * Parses a list of {@link SshKey} objects.
+ * Parses a response with an {@link SshKey}.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera

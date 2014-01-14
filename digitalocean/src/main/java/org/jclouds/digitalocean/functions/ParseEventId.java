@@ -23,38 +23,35 @@ import javax.inject.Singleton;
 
 import org.jclouds.digitalocean.domain.BaseResponse;
 import org.jclouds.digitalocean.domain.Event;
-import org.jclouds.digitalocean.functions.ParseEvent.EventResponse;
+import org.jclouds.digitalocean.functions.ParseEventId.EventIdResponse;
 import org.jclouds.http.functions.ParseJson;
 
-import com.google.inject.name.Named;
-
 /**
- * Parses a response with an {@link Event}.
+ * Parses a response with an {@link Event} id.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
 @Singleton
-public class ParseEvent extends BaseResponseParser<EventResponse, Event> {
+public class ParseEventId extends BaseResponseParser<EventIdResponse, Integer> {
 
    @Inject
-   ParseEvent(ParseJson<EventResponse> parser) {
+   ParseEventId(ParseJson<EventIdResponse> parser) {
       super(parser);
    }
 
    @Override
-   protected Event getReturnValue(EventResponse result) {
-      return result.event;
+   protected Integer getReturnValue(EventIdResponse result) {
+      return result.eventId;
    }
 
-   public static class EventResponse extends BaseResponse {
-      @Named("event")
-      private final Event event;
+   public static class EventIdResponse extends BaseResponse {
+      private final Integer eventId;
 
-      @ConstructorProperties({ "status", "error_message", "message", "event" })
-      public EventResponse(Status status, String message, String details, Event event) {
+      @ConstructorProperties({ "status", "error_message", "message", "event_id" })
+      public EventIdResponse(Status status, String message, String details, Integer eventId) {
          super(status, message, details);
-         this.event = event;
+         this.eventId = eventId;
       }
    }
 

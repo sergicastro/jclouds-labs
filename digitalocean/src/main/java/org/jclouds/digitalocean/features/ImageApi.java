@@ -23,10 +23,12 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.functions.ParseEventId;
 import org.jclouds.digitalocean.functions.ParseImage;
 import org.jclouds.digitalocean.functions.ParseImageList;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
@@ -70,4 +72,28 @@ public interface ImageApi extends Closeable {
    @ResponseParser(ParseImage.class)
    @Fallback(NullOnNotFoundOr404.class)
    Image getImage(@PathParam("id") int id);
+
+   /**
+    * Deletes an existing image.
+    * 
+    * @param id The id of the key pair.
+    */
+   @Named("image:delete")
+   @GET
+   @Path("/{id}/destroy")
+   void deleteImage(@PathParam("id") int id);
+
+   /**
+    * Transfers the image to the given region.
+    * 
+    * @param id The id of the image to transfer.
+    * @param regionId The id of the region to which the image will be
+    *        transferred.
+    * @return The id of the event to track the transfer process.
+    */
+   @Named("image:delete")
+   @GET
+   @Path("/{id}/transfer")
+   @ResponseParser(ParseEventId.class)
+   int transferImage(@PathParam("id") int id, @QueryParam("region_id") int regionId);
 }

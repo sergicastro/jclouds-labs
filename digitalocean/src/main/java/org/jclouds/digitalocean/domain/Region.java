@@ -28,18 +28,18 @@ import java.beans.ConstructorProperties;
  */
 public class Region {
 
-   private final String id;
+   private final int id;
    private final String name;
    private final String slug;
 
    @ConstructorProperties({ "id", "name", "slug" })
-   public Region(String id, String name, String slug) {
-      this.id = checkNotNull(id, "id cannot be null");
+   public Region(int id, String name, String slug) {
+      this.id = id;
       this.name = checkNotNull(name, "name cannot be null");
       this.slug = checkNotNull(slug, "slug cannot be null");
    }
 
-   public String getId() {
+   public int getId() {
       return id;
    }
 
@@ -53,9 +53,9 @@ public class Region {
 
    @Override
    public int hashCode() {
-      int prime = 31;
+      final int prime = 31;
       int result = 1;
-      result = prime * result + (id == null ? 0 : id.hashCode());
+      result = prime * result + id;
       result = prime * result + (name == null ? 0 : name.hashCode());
       result = prime * result + (slug == null ? 0 : slug.hashCode());
       return result;
@@ -73,11 +73,7 @@ public class Region {
          return false;
       }
       Region other = (Region) obj;
-      if (id == null) {
-         if (other.id != null) {
-            return false;
-         }
-      } else if (!id.equals(other.id)) {
+      if (id != other.id) {
          return false;
       }
       if (name == null) {

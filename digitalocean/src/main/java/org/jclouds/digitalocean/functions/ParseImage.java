@@ -27,7 +27,7 @@ import org.jclouds.digitalocean.functions.ParseImage.ImageResponse;
 import org.jclouds.http.functions.ParseJson;
 
 /**
- * Parses a list of {@link Image} objects.
+ * Parses a response with an {@link Image}.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
