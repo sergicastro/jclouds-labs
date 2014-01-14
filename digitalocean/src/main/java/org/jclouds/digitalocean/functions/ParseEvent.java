@@ -17,42 +17,44 @@
 package org.jclouds.digitalocean.functions;
 
 import java.beans.ConstructorProperties;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.jclouds.digitalocean.domain.BaseResponse;
-import org.jclouds.digitalocean.domain.Size;
-import org.jclouds.digitalocean.functions.ParseSizeList.ListSizesResponse;
+import org.jclouds.digitalocean.domain.Event;
+import org.jclouds.digitalocean.functions.ParseEvent.EventResponse;
 import org.jclouds.http.functions.ParseJson;
 
+import com.google.inject.name.Named;
+
 /**
- * Parses a list of {@link Size} objects.
+ * Parses a list of {@link Event} objects.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
 @Singleton
-public class ParseSizeList extends BaseResponseParser<ListSizesResponse, List<Size>> {
+public class ParseEvent extends BaseResponseParser<EventResponse, Event> {
 
    @Inject
-   ParseSizeList(ParseJson<ListSizesResponse> parser) {
+   ParseEvent(ParseJson<EventResponse> parser) {
       super(parser);
    }
 
    @Override
-   protected List<Size> getReturnValue(ListSizesResponse result) {
-      return result.sizes;
+   protected Event getReturnValue(EventResponse result) {
+      return result.event;
    }
 
-   public static class ListSizesResponse extends BaseResponse {
-      private final List<Size> sizes;
+   public static class EventResponse extends BaseResponse {
+      @Named("event")
+      private final Event event;
 
-      @ConstructorProperties({ "status", "error_message", "message", "sizes" })
-      public ListSizesResponse(Status status, String message, String details, List<Size> sizes) {
+      @ConstructorProperties({ "status", "error_message", "message", "event" })
+      public EventResponse(Status status, String message, String details, Event event) {
          super(status, message, details);
-         this.sizes = sizes;
+         this.event = event;
       }
    }
 

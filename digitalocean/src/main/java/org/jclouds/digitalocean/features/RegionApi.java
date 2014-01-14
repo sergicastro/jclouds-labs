@@ -36,6 +36,7 @@ import com.google.inject.name.Named;
  * Provides access to the Region management features.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)

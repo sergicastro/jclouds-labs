@@ -17,39 +17,45 @@
 package org.jclouds.digitalocean.features;
 
 import java.io.Closeable;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.digitalocean.domain.Size;
-import org.jclouds.digitalocean.functions.ParseSizeList;
+import org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import org.jclouds.digitalocean.domain.Event;
+import org.jclouds.digitalocean.functions.ParseEvent;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
+import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.ResponseParser;
 
 import com.google.inject.name.Named;
 
 /**
- * Provides access to the Size management features.
+ * Provides access to the Event API.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)
-@Path("/sizes")
-public interface SizesApi extends Closeable {
+@Path("/events")
+public interface EventApi extends Closeable {
 
    /**
-    * Lists all available sizes.
+    * Get the details of a given event.
     * 
-    * @return The list of all available sizes.
+    * @param The id of the event to get.
+    * @return The details of the event or <code>null</code> if no event exists
+    *         with the given id.
     */
-   @Named("size:list")
+   @Named("event:get")
    @GET
-   @ResponseParser(ParseSizeList.class)
-   List<Size> listSizes();
+   @Path("/{id}")
+   @ResponseParser(ParseEvent.class)
+   @Fallback(NullOnNotFoundOr404.class)
+   Event getEvent(@PathParam("id") int id);
 }

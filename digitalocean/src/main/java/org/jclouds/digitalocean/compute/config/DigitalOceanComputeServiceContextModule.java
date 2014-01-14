@@ -20,6 +20,8 @@ import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.NodeMetadata.Status;
+import org.jclouds.digitalocean.compute.functions.DropletStatusToStatus;
 import org.jclouds.digitalocean.compute.functions.DropletToNodeMetadata;
 import org.jclouds.digitalocean.compute.functions.ImageToImage;
 import org.jclouds.digitalocean.compute.functions.RegionToLocation;
@@ -38,6 +40,7 @@ import com.google.inject.TypeLiteral;
  * Configures the compute service classes for the DigitalOcean API.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class DigitalOceanComputeServiceContextModule extends
       ComputeServiceAdapterContextModule<Droplet, Size, Image, Region> {
@@ -55,6 +58,8 @@ public class DigitalOceanComputeServiceContextModule extends
       }).to(RegionToLocation.class);
       bind(new TypeLiteral<Function<Size, Hardware>>() {
       }).to(SizeToHardware.class);
+      bind(new TypeLiteral<Function<Droplet.Status, Status>>() {
+      }).to(DropletStatusToStatus.class);
       install(new LocationsFromComputeServiceAdapterModule<Droplet, Size, Image, Region>() {
       });
    }

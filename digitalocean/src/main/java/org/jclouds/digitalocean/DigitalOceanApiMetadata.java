@@ -33,6 +33,7 @@ import com.google.inject.Module;
  * Implementation of {@link BaseHttpApiMetadata} for the DigitalOcean API
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class DigitalOceanApiMetadata extends BaseHttpApiMetadata<DigitalOceanApi> {
 

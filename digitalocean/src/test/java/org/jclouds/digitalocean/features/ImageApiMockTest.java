@@ -34,6 +34,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
  * Mock tests for the {@link ImageApi} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "unit", testName = "ImageApiMockTest")
 public class ImageApiMockTest extends BaseDigitalOceanMockTest {
@@ -74,7 +75,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
 
    public void testGetImageNotFound() throws Exception {
       MockWebServer server = mockWebServer();
-      server.enqueue(new MockResponse().setStatus("404"));
+      server.enqueue(new MockResponse().setResponseCode(404));
 
       DigitalOceanApi api = api(server.getUrl("/"));
       ImageApi imageApi = api.getImageApi();

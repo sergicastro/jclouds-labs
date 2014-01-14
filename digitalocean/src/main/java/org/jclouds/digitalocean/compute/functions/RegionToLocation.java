@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSet;
  * Transforms an {@link Region} to the jclouds portable model.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class RegionToLocation implements Function<Region, Location> {
@@ -42,7 +43,7 @@ public class RegionToLocation implements Function<Region, Location> {
    private final JustProvider justProvider;
 
    @Inject
-   public RegionToLocation(JustProvider justProvider) {
+   RegionToLocation(JustProvider justProvider) {
       this.justProvider = checkNotNull(justProvider, "justProvider cannot be null");
    }
 

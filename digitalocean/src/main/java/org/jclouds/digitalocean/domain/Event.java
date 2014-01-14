@@ -20,60 +20,68 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
-import org.jclouds.javax.annotation.Nullable;
+import com.google.inject.name.Named;
 
 /**
- * An Image.
+ * An Event.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
- * 
  */
-public class Image {
-   private final int id;
-   private final String name;
-   private final String distribution;
-   private final boolean publicImage;
-   private final String slug;
+public class Event {
 
-   @ConstructorProperties({ "id", "name", "distribution", "public", "slug" })
-   public Image(int id, String name, String distribution, boolean publicImage, @Nullable String slug) {
+   public enum Status {
+      done
+      // TODO: Add missing event status
+   }
+
+   private final int id;
+   @Named("action_status")
+   private final Status status;
+   @Named("event_type_id")
+   private final int typeId;
+   private final String percentage;
+   @Named("droplet_id")
+   private final int dropletId;
+
+   @ConstructorProperties({ "id", "action_status", "event_type_id", "percentage", "droplet_id" })
+   public Event(int id, Status status, int typeId, String percentage, int dropletId) {
       this.id = id;
-      this.name = checkNotNull(name, "name");
-      this.distribution = checkNotNull(distribution, "distribution");
-      this.publicImage = publicImage;
-      this.slug = slug;
+      this.status = checkNotNull(status, "status cannot be null");
+      this.typeId = typeId;
+      this.percentage = checkNotNull(percentage, "percentage cannot be null");
+      this.dropletId = dropletId;
    }
 
    public int getId() {
       return id;
    }
 
-   public String getName() {
-      return name;
+   public Status getStatus() {
+      return status;
    }
 
-   public String getDistribution() {
-      return distribution;
+   public int getTypeId() {
+      return typeId;
    }
 
-   public boolean isPublicImage() {
-      return publicImage;
+   public String getPercentage() {
+      return percentage;
    }
 
-   public String getSlug() {
-      return slug;
+   public int getDropletId() {
+      return dropletId;
    }
 
    @Override
    public int hashCode() {
-      int prime = 31;
+      final int prime = 31;
       int result = 1;
-      result = prime * result + (distribution == null ? 0 : distribution.hashCode());
+      result = prime * result + dropletId;
       result = prime * result + id;
-      result = prime * result + (name == null ? 0 : name.hashCode());
-      result = prime * result + (publicImage ? 1231 : 1237);
-      result = prime * result + (slug == null ? 0 : slug.hashCode());
+      result = prime * result + (percentage == null ? 0 : percentage.hashCode());
+      result = prime * result + (status == null ? 0 : status.hashCode());
+      result = prime * result + typeId;
       return result;
    }
 
@@ -88,32 +96,24 @@ public class Image {
       if (getClass() != obj.getClass()) {
          return false;
       }
-      Image other = (Image) obj;
-      if (distribution == null) {
-         if (other.distribution != null) {
-            return false;
-         }
-      } else if (!distribution.equals(other.distribution)) {
+      Event other = (Event) obj;
+      if (dropletId != other.dropletId) {
          return false;
       }
       if (id != other.id) {
          return false;
       }
-      if (name == null) {
-         if (other.name != null) {
+      if (percentage == null) {
+         if (other.percentage != null) {
             return false;
          }
-      } else if (!name.equals(other.name)) {
+      } else if (!percentage.equals(other.percentage)) {
          return false;
       }
-      if (publicImage != other.publicImage) {
+      if (status != other.status) {
          return false;
       }
-      if (slug == null) {
-         if (other.slug != null) {
-            return false;
-         }
-      } else if (!slug.equals(other.slug)) {
+      if (typeId != other.typeId) {
          return false;
       }
       return true;
@@ -121,8 +121,8 @@ public class Image {
 
    @Override
    public String toString() {
-      return "Image [id=" + id + ", name=" + name + ", distribution=" + distribution + ", publicImage=" + publicImage
-            + ", slug=" + slug + "]";
+      return "Event [id=" + id + ", status=" + status + ", typeId=" + typeId + ", percentage=" + percentage
+            + ", dropletId=" + dropletId + "]";
    }
 
 }

@@ -40,6 +40,7 @@ import com.google.common.base.Predicate;
  * Implementation of the Compute Service for the DigitalOcean API.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<Droplet, Size, Image, Region> {
 
@@ -50,7 +51,7 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    private final DigitalOceanApi api;
 
    @Inject
-   public DigitalOceanComputeServiceAdapter(DigitalOceanApi api) {
+   DigitalOceanComputeServiceAdapter(DigitalOceanApi api) {
       this.api = checkNotNull(api, "api cannot be null");
    }
 
@@ -72,7 +73,7 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
 
    @Override
    public Iterable<Region> listLocations() {
-      return api.getreRegionApi().listRegions();
+      return api.getReRegionApi().listRegions();
    }
 
    @Override

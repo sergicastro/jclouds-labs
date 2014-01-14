@@ -14,36 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean.features;
+package org.jclouds.digitalocean.compute.functions;
 
-import static org.testng.Assert.assertTrue;
+import javax.inject.Singleton;
 
-import java.util.List;
-
+import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.digitalocean.domain.Droplet;
-import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
-import org.testng.annotations.Test;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableMap;
 
 /**
- * Live tests for the {@link DropletApi} class.
+ * Transforms an {@link Status} to the jclouds portable model.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
-@Test(groups = "live", testName = "DropletApiLiveTest")
-public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
+@Singleton
+public class DropletStatusToStatus implements Function<Droplet.Status, Status> {
 
-   private DropletApi dropletApi;
+   private static final Function<Droplet.Status, Status> toPortableStatus = Functions.forMap(//
+         ImmutableMap.<Droplet.Status, Status> builder() //
+               .put(Droplet.Status.active, Status.RUNNING) //
+               // TODO: Add missing droplet status
+               .build(), //
+         Status.UNRECOGNIZED);
 
    @Override
-   protected void initialize() {
-      super.initialize();
-      dropletApi = api.getDropletApi();
-   }
-
-   public void testListDroplets() {
-      List<Droplet> droplets = dropletApi.listDroplets();
-
-      assertTrue(droplets.size() > 0, "Droplet list should not be empty");
+   public Status apply(final Droplet.Status input) {
+      return toPortableStatus.apply(input);
    }
 }

@@ -34,6 +34,7 @@ import com.google.common.collect.Multimap;
  * Unit tests for the {@link AuthenticationFilter} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "unit", testName = "AuthenticationFilterTest")
 public class AuthenticationFilterTest {

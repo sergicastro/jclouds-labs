@@ -32,6 +32,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
  * Mock tests for the {@link RegionApi} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "unit", testName = "RegionApiMockTest")
 public class RegionApiMockTest extends BaseDigitalOceanMockTest {
@@ -41,7 +42,7 @@ public class RegionApiMockTest extends BaseDigitalOceanMockTest {
       server.enqueue(new MockResponse().setBody(payloadFromResource("/regions.json")));
 
       DigitalOceanApi api = api(server.getUrl("/"));
-      RegionApi regionApi = api.getreRegionApi();
+      RegionApi regionApi = api.getReRegionApi();
 
       try {
          List<Region> regions = regionApi.listRegions();

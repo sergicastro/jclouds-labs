@@ -29,6 +29,7 @@ import org.jclouds.collect.Memoized;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.compute.domain.NodeMetadataBuilder;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.domain.Location;
@@ -42,6 +43,7 @@ import com.google.common.collect.ImmutableSet;
  * Transforms an {@link Droplet} to the jclouds portable model.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
@@ -49,13 +51,16 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
    private final Supplier<Map<String, ? extends Image>> images;
    private final Supplier<Map<String, ? extends Hardware>> hardwares;
    private final Supplier<Set<? extends Location>> locations;
+   private final Function<Droplet.Status, Status> toPortableStatus;
 
    @Inject
-   public DropletToNodeMetadata(Supplier<Map<String, ? extends Image>> images,
-         Supplier<Map<String, ? extends Hardware>> hardwares, @Memoized Supplier<Set<? extends Location>> locations) {
+   DropletToNodeMetadata(Supplier<Map<String, ? extends Image>> images,
+         Supplier<Map<String, ? extends Hardware>> hardwares, @Memoized Supplier<Set<? extends Location>> locations,
+         Function<Droplet.Status, Status> toPortableStatus) {
       this.images = checkNotNull(images, "images cannot be null");
       this.hardwares = checkNotNull(hardwares, "hardwares cannot be null");
       this.locations = checkNotNull(locations, "locations cannot be null");
+      this.toPortableStatus = checkNotNull(toPortableStatus, "toPortableStatus cannot be null");
    }
 
    @Override
@@ -70,7 +75,8 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       builder.imageId(image.getId());
       builder.operatingSystem(image.getOperatingSystem());
 
-      builder.backendStatus(input.getStatus());
+      builder.status(toPortableStatus.apply(input.getStatus()));
+      builder.backendStatus(input.getStatus().name());
 
       builder.publicAddresses(ImmutableSet.of(input.getIp()));
       if (input.getPrivateIp() != null) {
@@ -80,7 +86,6 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       // TODO: builder.hostname
       // TODO: builder.loginport
       // TODO: builder.group
-      // TODO: builder.status
       // TODO: builder.credentials
 
       return builder.build();

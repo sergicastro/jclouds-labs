@@ -31,12 +31,13 @@ import org.jclouds.http.functions.ParseJson;
  * Parses a list of {@link Droplet} objects.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class ParseDropletList extends BaseResponseParser<ListDropletsResponse, List<Droplet>> {
 
    @Inject
-   public ParseDropletList(ParseJson<ListDropletsResponse> parser) {
+   ParseDropletList(ParseJson<ListDropletsResponse> parser) {
       super(parser);
    }
 
@@ -46,7 +47,7 @@ public class ParseDropletList extends BaseResponseParser<ListDropletsResponse, L
    }
 
    public static class ListDropletsResponse extends BaseResponse {
-      private List<Droplet> droplets;
+      private final List<Droplet> droplets;
 
       @ConstructorProperties({ "status", "error_message", "message", "droplets" })
       public ListDropletsResponse(Status status, String message, String details, List<Droplet> droplets) {
