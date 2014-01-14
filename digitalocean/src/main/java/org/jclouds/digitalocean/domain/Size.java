@@ -14,45 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jclouds.digitalocean.domain;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
+import javax.inject.Named;
+
+import org.jclouds.javax.annotation.Nullable;
+
 /**
- * A Size
+ * A Size.
  * 
  * @author Sergi Castro
- * 
  */
 public class Size {
-   private int id;
 
-   private String name;
-
-   private String slug;
-
-   private int memory;
-
-   private int cpu;
-
-   private int disk;
-
-   private String costPerHour;
-
-   private String costPerMonth;
+   private final int id;
+   private final String name;
+   private final String slug;
+   private final int memory;
+   private final int cpu;
+   private final int disk;
+   @Named("cost_per_hour")
+   private final String costPerHour;
+   @Named("cost_per_month")
+   private final String costPerMonth;
 
    @ConstructorProperties({ "id", "name", "slug", "memory", "cpu", "disk", "cost_per_hour", "cost_per_month" })
-   public Size(final int id, final String name, final String slug, final int memory, final int cpu, final int disk,
-         final String costPerHour, final String costPerMonth) {
+   public Size(int id, String name, @Nullable String slug, int memory, int cpu, int disk, String costPerHour,
+         String costPerMonth) {
       this.id = id;
-      this.name = name;
+      this.name = checkNotNull(name, "name cannot be null");
       this.slug = slug;
       this.memory = memory;
       this.cpu = cpu;
       this.disk = disk;
-      this.costPerHour = costPerHour;
-      this.costPerMonth = costPerMonth;
+      this.costPerHour = checkNotNull(name, "costPerHour cannot be null");
+      this.costPerMonth = checkNotNull(name, "costPerMonth cannot be null");
    }
 
    public int getId() {
@@ -89,7 +89,7 @@ public class Size {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
+      int prime = 31;
       int result = 1;
       result = prime * result + (costPerHour == null ? 0 : costPerHour.hashCode());
       result = prime * result + (costPerMonth == null ? 0 : costPerMonth.hashCode());
@@ -103,7 +103,7 @@ public class Size {
    }
 
    @Override
-   public boolean equals(final Object obj) {
+   public boolean equals(Object obj) {
       if (this == obj) {
          return true;
       }

@@ -14,30 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean.config;
+package org.jclouds.digitalocean.internal;
 
+import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.digitalocean.DigitalOceanApi;
-import org.jclouds.digitalocean.handlers.DigitalOceanErrorHandler;
-import org.jclouds.http.HttpErrorHandler;
-import org.jclouds.http.annotation.ClientError;
-import org.jclouds.http.annotation.Redirection;
-import org.jclouds.http.annotation.ServerError;
-import org.jclouds.rest.ConfiguresHttpApi;
-import org.jclouds.rest.config.HttpApiModule;
 
 /**
- * Configures the DigitalOcean connection.
+ * Base class for the DigitalOcean live tests.
  * 
  * @author Sergi Castro
  */
-@ConfiguresHttpApi
-public class DigitalOceanHttpApiModule extends HttpApiModule<DigitalOceanApi> {
+public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
 
-   @Override
-   protected void bindErrorHandlers() {
-      bind(HttpErrorHandler.class).annotatedWith(Redirection.class).to(DigitalOceanErrorHandler.class);
-      bind(HttpErrorHandler.class).annotatedWith(ClientError.class).to(DigitalOceanErrorHandler.class);
-      bind(HttpErrorHandler.class).annotatedWith(ServerError.class).to(DigitalOceanErrorHandler.class);
+   public BaseDigitalOceanLiveTest() {
+      provider = "digitalocean";
    }
 
 }

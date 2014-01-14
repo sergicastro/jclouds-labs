@@ -22,43 +22,51 @@ import java.beans.ConstructorProperties;
 
 import org.jclouds.javax.annotation.Nullable;
 
+import com.google.inject.name.Named;
+
 /**
- * A Region.
+ * Information of an error.
  * 
  * @author Sergi Castro
  */
-public class Region {
+public class BaseResponse {
 
-   private final String id;
-   private final String name;
-   private final String slug;
-
-   @ConstructorProperties({ "id", "name", "slug" })
-   public Region(String id, String name, @Nullable String slug) {
-      this.id = checkNotNull(id, "id cannot be null");
-      this.name = checkNotNull(name, "name cannot be null");
-      this.slug = slug;
+   public static enum Status {
+      OK, ERROR
    }
 
-   public String getId() {
-      return id;
+   private final Status status;
+   @Named("error_message")
+   private final String message;
+   @Named("message")
+   private final String details;
+
+   @ConstructorProperties({ "status", "error_message", "message" })
+   public BaseResponse(Status status, @Nullable String message, @Nullable String details) {
+      this.status = checkNotNull(status, "status cannot be null");
+      this.message = message;
+      this.details = details;
    }
 
-   public String getName() {
-      return name;
+   public Status getStatus() {
+      return status;
    }
 
-   public String getSlug() {
-      return slug;
+   public String getMessage() {
+      return message;
+   }
+
+   public String getDetails() {
+      return details;
    }
 
    @Override
    public int hashCode() {
-      int prime = 31;
+      final int prime = 31;
       int result = 1;
-      result = prime * result + (id == null ? 0 : id.hashCode());
-      result = prime * result + (name == null ? 0 : name.hashCode());
-      result = prime * result + (slug == null ? 0 : slug.hashCode());
+      result = prime * result + (details == null ? 0 : details.hashCode());
+      result = prime * result + (message == null ? 0 : message.hashCode());
+      result = prime * result + (status == null ? 0 : status.hashCode());
       return result;
    }
 
@@ -73,26 +81,22 @@ public class Region {
       if (getClass() != obj.getClass()) {
          return false;
       }
-      Region other = (Region) obj;
-      if (id == null) {
-         if (other.id != null) {
+      BaseResponse other = (BaseResponse) obj;
+      if (details == null) {
+         if (other.details != null) {
             return false;
          }
-      } else if (!id.equals(other.id)) {
+      } else if (!details.equals(other.details)) {
          return false;
       }
-      if (name == null) {
-         if (other.name != null) {
+      if (message == null) {
+         if (other.message != null) {
             return false;
          }
-      } else if (!name.equals(other.name)) {
+      } else if (!message.equals(other.message)) {
          return false;
       }
-      if (slug == null) {
-         if (other.slug != null) {
-            return false;
-         }
-      } else if (!slug.equals(other.slug)) {
+      if (status != other.status) {
          return false;
       }
       return true;
@@ -100,7 +104,7 @@ public class Region {
 
    @Override
    public String toString() {
-      return "Region [id=" + id + ", name=" + name + ", slug=" + slug + "]";
+      return "BaseResponse [status=" + status + ", message=" + message + ", details=" + details + "]";
    }
 
 }

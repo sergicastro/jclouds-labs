@@ -20,6 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
+import org.jclouds.javax.annotation.Nullable;
+
 /**
  * An Image.
  * 
@@ -27,20 +29,22 @@ import java.beans.ConstructorProperties;
  * 
  */
 public class Image {
-   private Integer id;
-   private String name;
-   private String distribution;
-   private boolean publicImage;
+   private final int id;
+   private final String name;
+   private final String distribution;
+   private final boolean publicImage;
+   private final String slug;
 
-   @ConstructorProperties({ "id", "name", "distribution", "public" })
-   public Image(Integer id, String name, String distribution, boolean publicImage) {
-      this.id = checkNotNull(id, "id");
+   @ConstructorProperties({ "id", "name", "distribution", "public", "slug" })
+   public Image(int id, String name, String distribution, boolean publicImage, @Nullable String slug) {
+      this.id = id;
       this.name = checkNotNull(name, "name");
       this.distribution = checkNotNull(distribution, "distribution");
       this.publicImage = publicImage;
+      this.slug = slug;
    }
 
-   public Integer getId() {
+   public int getId() {
       return id;
    }
 
@@ -56,14 +60,19 @@ public class Image {
       return publicImage;
    }
 
+   public String getSlug() {
+      return slug;
+   }
+
    @Override
    public int hashCode() {
-      final int prime = 31;
+      int prime = 31;
       int result = 1;
       result = prime * result + (distribution == null ? 0 : distribution.hashCode());
-      result = prime * result + (id == null ? 0 : id.hashCode());
+      result = prime * result + id;
       result = prime * result + (name == null ? 0 : name.hashCode());
       result = prime * result + (publicImage ? 1231 : 1237);
+      result = prime * result + (slug == null ? 0 : slug.hashCode());
       return result;
    }
 
@@ -86,11 +95,7 @@ public class Image {
       } else if (!distribution.equals(other.distribution)) {
          return false;
       }
-      if (id == null) {
-         if (other.id != null) {
-            return false;
-         }
-      } else if (!id.equals(other.id)) {
+      if (id != other.id) {
          return false;
       }
       if (name == null) {
@@ -103,13 +108,20 @@ public class Image {
       if (publicImage != other.publicImage) {
          return false;
       }
+      if (slug == null) {
+         if (other.slug != null) {
+            return false;
+         }
+      } else if (!slug.equals(other.slug)) {
+         return false;
+      }
       return true;
    }
 
    @Override
    public String toString() {
       return "Image [id=" + id + ", name=" + name + ", distribution=" + distribution + ", publicImage=" + publicImage
-            + "]";
+            + ", slug=" + slug + "]";
    }
 
 }

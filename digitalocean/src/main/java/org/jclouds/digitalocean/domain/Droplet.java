@@ -13,60 +13,60 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package org.jclouds.digitalocean.domain;
+ */
+package org.jclouds.digitalocean.domain;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 import java.text.ParseException;
 import java.util.Date;
 
+import javax.inject.Named;
+
+import org.jclouds.javax.annotation.Nullable;
+
 /**
- * A droplet
+ * A droplet.
  * 
  * @author Sergi Castro
- * 
  */
 public class Droplet {
 
-   private int id;
-
-   private String name;
-
-   private int imageId;
-
-   private int sizeId;
-
-   private int regionId;
-
-   private boolean backupsActive;
-
-   private String ip_address;
-
-   private String private_ip_address;
-
-   private boolean locked;
-
-   private String status;
-
-   private Date created;
+   private final int id;
+   private final String name;
+   @Named("image_id")
+   private final int imageId;
+   @Named("size_id")
+   private final int sizeId;
+   @Named("region_id")
+   private final int regionId;
+   @Named("backups_active")
+   private final boolean backupsActive;
+   @Named("ip_address")
+   private final String ip;
+   @Named("private_ip_address")
+   private final String privateIp;
+   private final boolean locked;
+   private final String status; // TODO: Change to enum?
+   @Named("created_at")
+   private final Date created;
 
    @ConstructorProperties({ "id", "name", "image_id", "size_id", "region_id", "backups_active", "ip_address",
          "private_ip_address", "locked", "status", "created_at" })
-   public Droplet(final int id, final String name, final int imageId, final int sizeId, final int regionId,
-         final boolean backupsActive, final String ip_address, final String private_ip_address, final boolean locked,
-         final String status, final String created) throws ParseException {
+   public Droplet(int id, String name, int imageId, int sizeId, int regionId, boolean backupsActive, String ip,
+         @Nullable String privateIp, boolean locked, String status, Date created) throws ParseException {
       this.id = id;
-      this.name = name;
+      this.name = checkNotNull(name, "name cannot be null");
       this.imageId = imageId;
       this.sizeId = sizeId;
       this.regionId = regionId;
       this.backupsActive = backupsActive;
-      this.ip_address = ip_address;
-      this.private_ip_address = private_ip_address;
+      this.ip = checkNotNull(ip, "ip cannot be null");
+      this.privateIp = privateIp;
       this.locked = locked;
-      this.status = status;
-      // TODO parse 2014-01-13T20:53:08Z
-      // this.created = new
-      // SimpleDateFormat("yyyy-MM-ddhh:mm:ss").parse(created);
+      this.status = checkNotNull(status, "status cannot be null");
+      this.created = checkNotNull(created, "created cannot be null");
    }
 
    public int getId() {
@@ -93,12 +93,12 @@ public class Droplet {
       return backupsActive;
    }
 
-   public String getIp_address() {
-      return ip_address;
+   public String getIp() {
+      return ip;
    }
 
-   public String getPrivate_ip_address() {
-      return private_ip_address;
+   public String getPrivateIp() {
+      return privateIp;
    }
 
    public boolean isLocked() {
@@ -115,16 +115,16 @@ public class Droplet {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
+      int prime = 31;
       int result = 1;
       result = prime * result + (backupsActive ? 1231 : 1237);
       result = prime * result + (created == null ? 0 : created.hashCode());
       result = prime * result + id;
       result = prime * result + imageId;
-      result = prime * result + (ip_address == null ? 0 : ip_address.hashCode());
+      result = prime * result + (ip == null ? 0 : ip.hashCode());
       result = prime * result + (locked ? 1231 : 1237);
       result = prime * result + (name == null ? 0 : name.hashCode());
-      result = prime * result + (private_ip_address == null ? 0 : private_ip_address.hashCode());
+      result = prime * result + (privateIp == null ? 0 : privateIp.hashCode());
       result = prime * result + regionId;
       result = prime * result + sizeId;
       result = prime * result + (status == null ? 0 : status.hashCode());
@@ -132,7 +132,7 @@ public class Droplet {
    }
 
    @Override
-   public boolean equals(final Object obj) {
+   public boolean equals(Object obj) {
       if (this == obj) {
          return true;
       }
@@ -159,11 +159,11 @@ public class Droplet {
       if (imageId != other.imageId) {
          return false;
       }
-      if (ip_address == null) {
-         if (other.ip_address != null) {
+      if (ip == null) {
+         if (other.ip != null) {
             return false;
          }
-      } else if (!ip_address.equals(other.ip_address)) {
+      } else if (!ip.equals(other.ip)) {
          return false;
       }
       if (locked != other.locked) {
@@ -176,11 +176,11 @@ public class Droplet {
       } else if (!name.equals(other.name)) {
          return false;
       }
-      if (private_ip_address == null) {
-         if (other.private_ip_address != null) {
+      if (privateIp == null) {
+         if (other.privateIp != null) {
             return false;
          }
-      } else if (!private_ip_address.equals(other.private_ip_address)) {
+      } else if (!privateIp.equals(other.privateIp)) {
          return false;
       }
       if (regionId != other.regionId) {
@@ -202,8 +202,8 @@ public class Droplet {
    @Override
    public String toString() {
       return "Droplet [id=" + id + ", name=" + name + ", imageId=" + imageId + ", sizeId=" + sizeId + ", regionId="
-            + regionId + ", backupsActive=" + backupsActive + ", ip_address=" + ip_address + ", private_ip_address="
-            + private_ip_address + ", locked=" + locked + ", status=" + status + ", created=" + created + "]";
+            + regionId + ", backupsActive=" + backupsActive + ", ip=" + ip + ", privateIp=" + privateIp + ", locked="
+            + locked + ", status=" + status + ", created=" + created + "]";
    }
 
 }

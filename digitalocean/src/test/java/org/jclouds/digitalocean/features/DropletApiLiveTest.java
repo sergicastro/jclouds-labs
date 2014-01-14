@@ -14,50 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean;
+package org.jclouds.digitalocean.features;
 
 import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
-import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.digitalocean.domain.Droplet;
-import org.jclouds.digitalocean.domain.Image;
-import org.jclouds.digitalocean.domain.Region;
-import org.jclouds.digitalocean.domain.Size;
+import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
 import org.testng.annotations.Test;
 
 /**
+ * Live tests for the {@link DropletApi} class.
+ * 
  * @author Sergi Castro
  */
-@Test(groups = "live", testName = "DigitalOceanApiLiveTest")
-public class DigitalOceanApiLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
+@Test(groups = "live", testName = "DropletApiLiveTest")
+public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   public DigitalOceanApiLiveTest() {
-      provider = "digitalocean";
-   }
+   private DropletApi dropletApi;
 
-   public void testListImages() {
-      List<Image> images = api.listImages();
-
-      assertTrue(images.size() > 0, "Image list should not be empty");
-   }
-
-   public void testListRegions() {
-      List<Region> regions = api.listRegions();
-
-      assertTrue(regions.size() > 0, "Region list should not be empty");
-   }
-
-   public void testListSizes() {
-      List<Size> sizes = api.listSizes();
-
-      assertTrue(sizes.size() > 0, "Size list should not be empty");
+   @Override
+   protected void initialize() {
+      super.initialize();
+      dropletApi = api.getDropletApi();
    }
 
    public void testListDroplets() {
-      List<Droplet> droplets = api.listDroplets();
+      List<Droplet> droplets = dropletApi.listDroplets();
 
-      assertTrue(droplets.size() > 0, "Droplets list should not be empty");
+      assertTrue(droplets.size() > 0, "Droplet list should not be empty");
    }
 }
