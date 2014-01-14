@@ -20,8 +20,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
-import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.digitalocean.domain.Size;
+import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
 import org.testng.annotations.Test;
 
 /**
@@ -30,14 +30,18 @@ import org.testng.annotations.Test;
  * @author Sergi Castro
  */
 @Test(groups = "live", testName = "SizeApiLiveTest")
-public class SizeApiLiveTest extends BaseApiLiveTest<SizesApi> {
+public class SizeApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   public SizeApiLiveTest() {
-      provider = "digitalocean";
+   private SizesApi sizesApi;
+
+   @Override
+   protected void initialize() {
+      super.initialize();
+      sizesApi = api.getSizesApi();
    }
 
    public void testListSizes() {
-      List<Size> sizes = api.listSizes();
+      List<Size> sizes = sizesApi.listSizes();
 
       assertTrue(sizes.size() > 0, "Size list should not be empty");
    }

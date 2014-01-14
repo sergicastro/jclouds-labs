@@ -20,8 +20,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
-import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
 import org.testng.annotations.Test;
 
 /**
@@ -30,14 +30,18 @@ import org.testng.annotations.Test;
  * @author Sergi Castro
  */
 @Test(groups = "live", testName = "ImageApiLiveTest")
-public class ImageApiLiveTest extends BaseApiLiveTest<ImageApi> {
+public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   public ImageApiLiveTest() {
-      provider = "digitalocean";
+   private ImageApi imageApi;
+
+   @Override
+   protected void initialize() {
+      super.initialize();
+      imageApi = api.getImageApi();
    }
 
    public void testListImages() {
-      List<Image> images = api.listImages();
+      List<Image> images = imageApi.listImages();
 
       assertTrue(images.size() > 0, "Image list should not be empty");
    }

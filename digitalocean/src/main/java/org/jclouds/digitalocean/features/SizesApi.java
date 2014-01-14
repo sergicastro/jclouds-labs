@@ -25,9 +25,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.digitalocean.domain.Size;
+import org.jclouds.digitalocean.functions.ParseSizeList;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
 import org.jclouds.rest.annotations.RequestFilters;
-import org.jclouds.rest.annotations.SelectJson;
+import org.jclouds.rest.annotations.ResponseParser;
 
 import com.google.inject.name.Named;
 
@@ -38,6 +39,7 @@ import com.google.inject.name.Named;
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)
+@Path("/sizes")
 public interface SizesApi extends Closeable {
 
    /**
@@ -45,7 +47,6 @@ public interface SizesApi extends Closeable {
     */
    @Named("size:list")
    @GET
-   @Path("/sizes")
-   @SelectJson("sizes")
+   @ResponseParser(ParseSizeList.class)
    List<Size> listSizes();
 }

@@ -25,9 +25,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.digitalocean.domain.Region;
+import org.jclouds.digitalocean.functions.ParseRegionsList;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
 import org.jclouds.rest.annotations.RequestFilters;
-import org.jclouds.rest.annotations.SelectJson;
+import org.jclouds.rest.annotations.ResponseParser;
 
 import com.google.inject.name.Named;
 
@@ -38,6 +39,7 @@ import com.google.inject.name.Named;
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)
+@Path("/regions")
 public interface RegionApi extends Closeable {
 
    /**
@@ -45,7 +47,6 @@ public interface RegionApi extends Closeable {
     */
    @Named("region:list")
    @GET
-   @Path("/regions")
-   @SelectJson("regions")
+   @ResponseParser(ParseRegionsList.class)
    List<Region> listRegions();
 }

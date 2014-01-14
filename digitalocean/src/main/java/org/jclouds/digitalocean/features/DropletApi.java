@@ -25,9 +25,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.digitalocean.domain.Droplet;
+import org.jclouds.digitalocean.functions.ParseDropletList;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
 import org.jclouds.rest.annotations.RequestFilters;
-import org.jclouds.rest.annotations.SelectJson;
+import org.jclouds.rest.annotations.ResponseParser;
 
 import com.google.inject.name.Named;
 
@@ -38,6 +39,7 @@ import com.google.inject.name.Named;
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)
+@Path("/droplets")
 public interface DropletApi extends Closeable {
 
    /**
@@ -45,7 +47,6 @@ public interface DropletApi extends Closeable {
     */
    @Named("droplet:list")
    @GET
-   @Path("/droplets")
-   @SelectJson("droplets")
+   @ResponseParser(ParseDropletList.class)
    List<Droplet> listDroplets();
 }

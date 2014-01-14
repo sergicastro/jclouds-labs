@@ -20,8 +20,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
-import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.digitalocean.domain.Region;
+import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
 import org.testng.annotations.Test;
 
 /**
@@ -30,14 +30,18 @@ import org.testng.annotations.Test;
  * @author Sergi Castro
  */
 @Test(groups = "live", testName = "RegionApiLiveTest")
-public class RegionApiLiveTest extends BaseApiLiveTest<RegionApi> {
+public class RegionApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   public RegionApiLiveTest() {
-      provider = "digitalocean";
+   private RegionApi regionApi;
+
+   @Override
+   protected void initialize() {
+      super.initialize();
+      regionApi = api.getreRegionApi();
    }
 
    public void testListRegions() {
-      List<Region> regions = api.listRegions();
+      List<Region> regions = regionApi.listRegions();
 
       assertTrue(regions.size() > 0, "Region list should not be empty");
    }

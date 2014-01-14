@@ -14,35 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean.features;
+package org.jclouds.digitalocean.internal;
 
-import static org.testng.Assert.assertTrue;
-
-import java.util.List;
-
-import org.jclouds.digitalocean.domain.Droplet;
-import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
-import org.testng.annotations.Test;
+import org.jclouds.apis.BaseApiLiveTest;
+import org.jclouds.digitalocean.DigitalOceanApi;
 
 /**
- * Live tests for the {@link DropletApi} class.
+ * Base class for the DigitalOcean live tests.
  * 
  * @author Sergi Castro
  */
-@Test(groups = "live", testName = "DropletApiLiveTest")
-public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
+public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
 
-   private DropletApi dropletApi;
-
-   @Override
-   protected void initialize() {
-      super.initialize();
-      dropletApi = api.getDropletApi();
+   public BaseDigitalOceanLiveTest() {
+      provider = "digitalocean";
    }
 
-   public void testListDroplets() {
-      List<Droplet> droplets = dropletApi.listDroplets();
-
-      assertTrue(droplets.size() > 0, "Droplet list should not be empty");
-   }
 }

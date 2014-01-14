@@ -23,6 +23,7 @@ import java.util.List;
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
+import org.jclouds.http.HttpResponseException;
 import org.testng.annotations.Test;
 
 import com.squareup.okhttp.mockwebserver.MockResponse;
@@ -35,6 +36,22 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
  */
 @Test(groups = "unit", testName = "ImageApiMockTest")
 public class ImageApiMockTest extends BaseDigitalOceanMockTest {
+
+   @Test(expectedExceptions = HttpResponseException.class, expectedExceptionsMessageRegExp = "No Image Found")
+   public void testListImagesFailure() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/error.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      ImageApi imageApi = api.getImageApi();
+
+      try {
+         imageApi.listImages();
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
 
    public void testListImages() throws Exception {
       MockWebServer server = mockWebServer();
