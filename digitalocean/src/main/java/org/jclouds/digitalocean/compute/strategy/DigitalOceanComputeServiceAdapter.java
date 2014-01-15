@@ -35,10 +35,12 @@ import org.jclouds.crypto.Crypto;
 import org.jclouds.crypto.Pems;
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Droplet;
+import org.jclouds.digitalocean.domain.DropletCreation;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.domain.Size;
 import org.jclouds.digitalocean.domain.SshKey;
+import org.jclouds.digitalocean.domain.options.CreateDropletOptions;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.logging.Logger;
 
@@ -72,12 +74,24 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    @Override
    public NodeAndInitialCredentials<Droplet> createNodeWithGroupEncodedIntoName(String group, final String name,
          Template template) {
-      // Generate a new keypair to access the node
+      // Generate a new key pair to access the node
+      // TODO: Make this key generation take into account overrides in the
+      // template options
       KeyPair keys = crypto.rsaKeyPairGenerator().generateKeyPair();
       SshKey initialKey = api.getKeyPairApi().createKey(group, publicKeyWriter.apply(keys.getPublic()));
 
-      // TODO: Create the droplet using the generated ssh key
-      Droplet droplet = null;
+      // TODO: Create a custom template options class to leverage DigitalOcean
+      // specific options
+      CreateDropletOptions options = CreateDropletOptions.builder().addSshKeyId(initialKey.getId()).build();
+
+      DropletCreation dropletCreation = api.getDropletApi().createDroplet(name,
+            Integer.parseInt(template.getImage().getProviderId()), //
+            Integer.parseInt(template.getHardware().getProviderId()),//
+            Integer.parseInt(template.getLocation().getId()), //
+            options);
+
+      // TODO: Verify the droplet exists at this point (although still inactive)
+      Droplet droplet = api.getDropletApi().getDroplet(dropletCreation.getId());
 
       LoginCredentials nodeCredentials = LoginCredentials.builder() //
             .identity("root")//

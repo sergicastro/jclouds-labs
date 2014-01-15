@@ -22,39 +22,36 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.jclouds.digitalocean.domain.BaseResponse;
-import org.jclouds.digitalocean.domain.Event;
-import org.jclouds.digitalocean.functions.ParseEventId.EventIdResponse;
+import org.jclouds.digitalocean.domain.DropletCreation;
+import org.jclouds.digitalocean.functions.ParseDropletCreation.DropletCreationResponse;
 import org.jclouds.http.functions.ParseJson;
 
-import com.google.inject.name.Named;
-
 /**
- * Parses a response with an {@link Event} id.
+ * Parses a response with a {@link DropletCreation}.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
  */
 @Singleton
-public class ParseEventId extends BaseResponseParser<EventIdResponse, Integer> {
+public class ParseDropletCreation extends BaseResponseParser<DropletCreationResponse, DropletCreation> {
 
    @Inject
-   ParseEventId(ParseJson<EventIdResponse> parser) {
+   ParseDropletCreation(ParseJson<DropletCreationResponse> parser) {
       super(parser);
    }
 
    @Override
-   protected Integer getReturnValue(EventIdResponse result) {
-      return result.eventId;
+   protected DropletCreation getReturnValue(DropletCreationResponse result) {
+      return result.droplet;
    }
 
-   public static class EventIdResponse extends BaseResponse {
-      @Named("event_id")
-      private final Integer eventId;
+   public static class DropletCreationResponse extends BaseResponse {
+      private final DropletCreation droplet;
 
-      @ConstructorProperties({ "status", "error_message", "message", "event_id" })
-      public EventIdResponse(Status status, String message, String details, Integer eventId) {
+      @ConstructorProperties({ "status", "error_message", "message", "droplet" })
+      public DropletCreationResponse(Status status, String message, String details, DropletCreation droplet) {
          super(status, message, details);
-         this.eventId = eventId;
+         this.droplet = droplet;
       }
    }
 

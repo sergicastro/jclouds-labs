@@ -26,8 +26,6 @@ import org.jclouds.digitalocean.domain.Event;
 import org.jclouds.digitalocean.functions.ParseEvent.EventResponse;
 import org.jclouds.http.functions.ParseJson;
 
-import com.google.inject.name.Named;
-
 /**
  * Parses a response with an {@link Event}.
  * 
@@ -48,7 +46,6 @@ public class ParseEvent extends BaseResponseParser<EventResponse, Event> {
    }
 
    public static class EventResponse extends BaseResponse {
-      @Named("event")
       private final Event event;
 
       @ConstructorProperties({ "status", "error_message", "message", "event" })

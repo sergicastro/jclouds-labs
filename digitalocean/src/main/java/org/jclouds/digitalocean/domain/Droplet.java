@@ -21,10 +21,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.beans.ConstructorProperties;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Named;
 
 import org.jclouds.javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * A droplet.
@@ -49,6 +52,8 @@ public class Droplet {
    private final int regionId;
    @Named("backups_active")
    private final boolean backupsActive;
+   private final List<Object> backups;
+   private final List<Object> snapshots;
    @Named("ip_address")
    private final String ip;
    @Named("private_ip_address")
@@ -56,23 +61,26 @@ public class Droplet {
    private final boolean locked;
    private final Status status;
    @Named("created_at")
-   private final Date created;
+   private final Date creationDate;
 
-   @ConstructorProperties({ "id", "name", "image_id", "size_id", "region_id", "backups_active", "ip_address",
-         "private_ip_address", "locked", "status", "created_at" })
-   public Droplet(int id, String name, int imageId, int sizeId, int regionId, boolean backupsActive, String ip,
-         @Nullable String privateIp, boolean locked, Status status, Date created) throws ParseException {
+   @ConstructorProperties({ "id", "name", "image_id", "size_id", "region_id", "backups_active", "backups", "snapshots",
+         "ip_address", "private_ip_address", "locked", "status", "created_at" })
+   public Droplet(int id, String name, int imageId, int sizeId, int regionId, boolean backupsActive,
+         @Nullable List<Object> backups, @Nullable List<Object> snapshots, String ip, @Nullable String privateIp,
+         boolean locked, Status status, @Nullable Date creationDate) throws ParseException {
       this.id = id;
       this.name = checkNotNull(name, "name cannot be null");
       this.imageId = imageId;
       this.sizeId = sizeId;
       this.regionId = regionId;
       this.backupsActive = backupsActive;
+      this.backups = backups != null ? ImmutableList.copyOf(backups) : ImmutableList.of();
+      this.snapshots = snapshots != null ? ImmutableList.copyOf(snapshots) : ImmutableList.of();
       this.ip = checkNotNull(ip, "ip cannot be null");
       this.privateIp = privateIp;
       this.locked = locked;
       this.status = checkNotNull(status, "status cannot be null");
-      this.created = checkNotNull(created, "created cannot be null");
+      this.creationDate = creationDate;
    }
 
    public int getId() {
@@ -99,6 +107,14 @@ public class Droplet {
       return backupsActive;
    }
 
+   public List<Object> getBackups() {
+      return backups;
+   }
+
+   public List<Object> getSnapshots() {
+      return snapshots;
+   }
+
    public String getIp() {
       return ip;
    }
@@ -115,16 +131,17 @@ public class Droplet {
       return status;
    }
 
-   public Date getCreated() {
-      return created;
+   public Date getCreationDate() {
+      return creationDate;
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = 1;
+      result = prime * result + (backups == null ? 0 : backups.hashCode());
       result = prime * result + (backupsActive ? 1231 : 1237);
-      result = prime * result + (created == null ? 0 : created.hashCode());
+      result = prime * result + (creationDate == null ? 0 : creationDate.hashCode());
       result = prime * result + id;
       result = prime * result + imageId;
       result = prime * result + (ip == null ? 0 : ip.hashCode());
@@ -133,6 +150,7 @@ public class Droplet {
       result = prime * result + (privateIp == null ? 0 : privateIp.hashCode());
       result = prime * result + regionId;
       result = prime * result + sizeId;
+      result = prime * result + (snapshots == null ? 0 : snapshots.hashCode());
       result = prime * result + (status == null ? 0 : status.hashCode());
       return result;
    }
@@ -149,14 +167,21 @@ public class Droplet {
          return false;
       }
       Droplet other = (Droplet) obj;
+      if (backups == null) {
+         if (other.backups != null) {
+            return false;
+         }
+      } else if (!backups.equals(other.backups)) {
+         return false;
+      }
       if (backupsActive != other.backupsActive) {
          return false;
       }
-      if (created == null) {
-         if (other.created != null) {
+      if (creationDate == null) {
+         if (other.creationDate != null) {
             return false;
          }
-      } else if (!created.equals(other.created)) {
+      } else if (!creationDate.equals(other.creationDate)) {
          return false;
       }
       if (id != other.id) {
@@ -195,6 +220,13 @@ public class Droplet {
       if (sizeId != other.sizeId) {
          return false;
       }
+      if (snapshots == null) {
+         if (other.snapshots != null) {
+            return false;
+         }
+      } else if (!snapshots.equals(other.snapshots)) {
+         return false;
+      }
       if (status != other.status) {
          return false;
       }
@@ -204,8 +236,9 @@ public class Droplet {
    @Override
    public String toString() {
       return "Droplet [id=" + id + ", name=" + name + ", imageId=" + imageId + ", sizeId=" + sizeId + ", regionId="
-            + regionId + ", backupsActive=" + backupsActive + ", ip=" + ip + ", privateIp=" + privateIp + ", locked="
-            + locked + ", status=" + status + ", created=" + created + "]";
+            + regionId + ", backupsActive=" + backupsActive + ", backups=" + backups + ", snapshots=" + snapshots
+            + ", ip=" + ip + ", privateIp=" + privateIp + ", locked=" + locked + ", status=" + status
+            + ", creationDate=" + creationDate + "]";
    }
 
 }
