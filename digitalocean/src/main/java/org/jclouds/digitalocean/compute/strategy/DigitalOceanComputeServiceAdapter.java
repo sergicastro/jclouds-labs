@@ -19,6 +19,10 @@ package org.jclouds.digitalocean.compute.strategy;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.tryFind;
+
+import java.security.KeyPair;
+import java.security.PublicKey;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -27,13 +31,19 @@ import javax.inject.Named;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.reference.ComputeServiceConstants;
+import org.jclouds.crypto.Crypto;
+import org.jclouds.crypto.Pems;
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.domain.Size;
+import org.jclouds.digitalocean.domain.SshKey;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.logging.Logger;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 /**
@@ -49,16 +59,33 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    protected Logger logger = Logger.NULL;
 
    private final DigitalOceanApi api;
+   private final Crypto crypto;
+   private final Function<PublicKey, String> publicKeyWriter;
 
    @Inject
-   DigitalOceanComputeServiceAdapter(DigitalOceanApi api) {
+   DigitalOceanComputeServiceAdapter(DigitalOceanApi api, Crypto crypto, Function<PublicKey, String> publicKeyWriter) {
       this.api = checkNotNull(api, "api cannot be null");
+      this.crypto = checkNotNull(crypto, "crypto cannot be null");
+      this.publicKeyWriter = checkNotNull(publicKeyWriter, "publicKeyWriter cannot be null");
    }
 
    @Override
-   public NodeAndInitialCredentials<Droplet> createNodeWithGroupEncodedIntoName(String group, String name,
+   public NodeAndInitialCredentials<Droplet> createNodeWithGroupEncodedIntoName(String group, final String name,
          Template template) {
-      return null;
+      // Generate a new keypair to access the node
+      KeyPair keys = crypto.rsaKeyPairGenerator().generateKeyPair();
+      SshKey initialKey = api.getKeyPairApi().createKey(group, publicKeyWriter.apply(keys.getPublic()));
+
+      // TODO: Create the droplet using the generated ssh key
+      Droplet droplet = null;
+
+      LoginCredentials nodeCredentials = LoginCredentials.builder() //
+            .identity("root")//
+            .authenticateSudo(Boolean.TRUE.equals(template.getOptions().shouldAuthenticateSudo())) //
+            .privateKey(Pems.pem(keys.getPrivate()))//
+            .build();
+
+      return new NodeAndInitialCredentials<Droplet>(droplet, String.valueOf(droplet.getId()), nodeCredentials);
    }
 
    @Override
@@ -103,7 +130,20 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
 
    @Override
    public void destroyNode(String id) {
+      final Droplet droplet = getNode(id);
 
+      // TODO: Delete droplet
+
+      Optional<SshKey> keyForNode = tryFind(api.getKeyPairApi().listKeys(), new Predicate<SshKey>() {
+         @Override
+         public boolean apply(SshKey input) {
+            return input.getName().equals(droplet.getName());
+         }
+      });
+
+      if (keyForNode.isPresent()) {
+         api.getKeyPairApi().deleteKey(keyForNode.get().getId());
+      }
    }
 
    @Override

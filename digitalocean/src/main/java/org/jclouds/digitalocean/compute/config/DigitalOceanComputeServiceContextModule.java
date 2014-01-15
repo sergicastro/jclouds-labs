@@ -63,4 +63,5 @@ public class DigitalOceanComputeServiceContextModule extends
       install(new LocationsFromComputeServiceAdapterModule<Droplet, Size, Image, Region>() {
       });
    }
+
 }
