@@ -31,12 +31,13 @@ import org.jclouds.http.functions.ParseJson;
  * Parses a list of {@link Size} objects.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class ParseSizeList extends BaseResponseParser<ListSizesResponse, List<Size>> {
 
    @Inject
-   public ParseSizeList(ParseJson<ListSizesResponse> parser) {
+   ParseSizeList(ParseJson<ListSizesResponse> parser) {
       super(parser);
    }
 
@@ -46,7 +47,7 @@ public class ParseSizeList extends BaseResponseParser<ListSizesResponse, List<Si
    }
 
    public static class ListSizesResponse extends BaseResponse {
-      private List<Size> sizes;
+      private final List<Size> sizes;
 
       @ConstructorProperties({ "status", "error_message", "message", "sizes" })
       public ListSizesResponse(Status status, String message, String details, List<Size> sizes) {

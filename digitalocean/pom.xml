@@ -29,7 +29,7 @@
     <!-- TODO: when out of labs, switch to org.apache.jclouds.provider -->
     <groupId>org.apache.jclouds.labs</groupId>
     <artifactId>digitalocean</artifactId>
-    <name>jclouds DigitalOcean API</name>
+    <name>jclouds DigitalOcean Provider</name>
     <description>ComputeService binding to the DigitalOcean API</description>
     <packaging>bundle</packaging>
 

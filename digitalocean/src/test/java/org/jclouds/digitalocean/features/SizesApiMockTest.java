@@ -32,6 +32,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
  * Mock tests for the {@link SizesApi} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "unit", testName = "SizesApiMockTest")
 public class SizesApiMockTest extends BaseDigitalOceanMockTest {
@@ -44,7 +45,7 @@ public class SizesApiMockTest extends BaseDigitalOceanMockTest {
       SizesApi sizesApi = api.getSizesApi();
 
       try {
-         List<Size> sizes = sizesApi.listSizes();
+         List<Size> sizes = sizesApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/sizes");
          assertEquals(sizes.size(), 4);

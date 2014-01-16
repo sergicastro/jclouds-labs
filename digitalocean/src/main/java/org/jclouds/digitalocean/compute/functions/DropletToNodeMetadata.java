@@ -29,7 +29,9 @@ import org.jclouds.collect.Memoized;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.compute.domain.NodeMetadataBuilder;
+import org.jclouds.compute.functions.GroupNamingConvention;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.domain.Location;
 import org.jclouds.location.predicates.LocationPredicates;
@@ -42,6 +44,7 @@ import com.google.common.collect.ImmutableSet;
  * Transforms an {@link Droplet} to the jclouds portable model.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
@@ -49,13 +52,18 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
    private final Supplier<Map<String, ? extends Image>> images;
    private final Supplier<Map<String, ? extends Hardware>> hardwares;
    private final Supplier<Set<? extends Location>> locations;
+   private final Function<Droplet.Status, Status> toPortableStatus;
+   private final GroupNamingConvention groupNamingConvention;
 
    @Inject
-   public DropletToNodeMetadata(Supplier<Map<String, ? extends Image>> images,
-         Supplier<Map<String, ? extends Hardware>> hardwares, @Memoized Supplier<Set<? extends Location>> locations) {
+   DropletToNodeMetadata(Supplier<Map<String, ? extends Image>> images,
+         Supplier<Map<String, ? extends Hardware>> hardwares, @Memoized Supplier<Set<? extends Location>> locations,
+         Function<Droplet.Status, Status> toPortableStatus, GroupNamingConvention.Factory groupNamingConvention) {
       this.images = checkNotNull(images, "images cannot be null");
       this.hardwares = checkNotNull(hardwares, "hardwares cannot be null");
       this.locations = checkNotNull(locations, "locations cannot be null");
+      this.toPortableStatus = checkNotNull(toPortableStatus, "toPortableStatus cannot be null");
+      this.groupNamingConvention = checkNotNull(groupNamingConvention, "groupNamingConvention cannot be null").create();
    }
 
    @Override
@@ -63,6 +71,9 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       NodeMetadataBuilder builder = new NodeMetadataBuilder();
       builder.ids(String.valueOf(input.getId()));
       builder.name(input.getName());
+      builder.hostname(input.getName());
+      builder.group(groupNamingConvention.extractGroup(input.getName()));
+
       builder.hardware(hardwares.get().get(String.valueOf(input.getSizeId())));
       builder.location(find(locations.get(), LocationPredicates.idEquals(String.valueOf(input.getRegionId()))));
 
@@ -70,18 +81,13 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       builder.imageId(image.getId());
       builder.operatingSystem(image.getOperatingSystem());
 
-      builder.backendStatus(input.getStatus());
+      builder.status(toPortableStatus.apply(input.getStatus()));
+      builder.backendStatus(input.getStatus().name());
 
       builder.publicAddresses(ImmutableSet.of(input.getIp()));
       if (input.getPrivateIp() != null) {
          builder.privateAddresses(ImmutableSet.of(input.getPrivateIp()));
       }
-
-      // TODO: builder.hostname
-      // TODO: builder.loginport
-      // TODO: builder.group
-      // TODO: builder.status
-      // TODO: builder.credentials
 
       return builder.build();
    }

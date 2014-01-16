@@ -26,6 +26,7 @@ import org.jclouds.javax.annotation.Nullable;
  * An Image.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  * 
  */
 public class Image {

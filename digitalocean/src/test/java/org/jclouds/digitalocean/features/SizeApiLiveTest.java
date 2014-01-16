@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  * Live tests for the {@link SizesApi} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "live", testName = "SizeApiLiveTest")
 public class SizeApiLiveTest extends BaseDigitalOceanLiveTest {
@@ -41,7 +42,7 @@ public class SizeApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testListSizes() {
-      List<Size> sizes = sizesApi.listSizes();
+      List<Size> sizes = sizesApi.list();
 
       assertTrue(sizes.size() > 0, "Size list should not be empty");
    }

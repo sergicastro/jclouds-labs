@@ -28,6 +28,7 @@ import org.jclouds.javax.annotation.Nullable;
  * A Size.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class Size {
 

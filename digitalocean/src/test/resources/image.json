@@ -1,0 +1,8 @@
+{
+  "status": "OK",
+  "image": {
+    "id": 2,
+    "name": "Automated Backup",
+    "distribution":"Ubuntu"
+  }
+}

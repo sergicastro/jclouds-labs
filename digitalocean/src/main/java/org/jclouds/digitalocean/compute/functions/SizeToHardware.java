@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
  * Transforms an {@link Size} to the jclouds portable model.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class SizeToHardware implements Function<Size, Hardware> {
@@ -46,7 +47,7 @@ public class SizeToHardware implements Function<Size, Hardware> {
 
       builder.volume(new VolumeBuilder() //
             .size(Float.valueOf(input.getDisk())) //
-            .type(Type.LOCAL) // TODO: Verify the type of the disks
+            .type(Type.LOCAL) //
             .build());
 
       ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();

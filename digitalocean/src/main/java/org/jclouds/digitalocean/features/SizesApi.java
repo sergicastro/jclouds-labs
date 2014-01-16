@@ -36,6 +36,7 @@ import com.google.inject.name.Named;
  * Provides access to the Size management features.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @RequestFilters(AuthenticationFilter.class)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -50,5 +51,5 @@ public interface SizesApi extends Closeable {
    @Named("size:list")
    @GET
    @ResponseParser(ParseSizeList.class)
-   List<Size> listSizes();
+   List<Size> list();
 }

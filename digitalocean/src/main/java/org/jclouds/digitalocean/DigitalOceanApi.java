@@ -18,24 +18,20 @@ package org.jclouds.digitalocean;
 
 import java.io.Closeable;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
-
 import org.jclouds.digitalocean.features.DropletApi;
+import org.jclouds.digitalocean.features.EventApi;
 import org.jclouds.digitalocean.features.ImageApi;
+import org.jclouds.digitalocean.features.KeyPairApi;
 import org.jclouds.digitalocean.features.RegionApi;
 import org.jclouds.digitalocean.features.SizesApi;
-import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
 import org.jclouds.rest.annotations.Delegate;
-import org.jclouds.rest.annotations.RequestFilters;
 
 /**
  * Provides synchronous access to DigitalOcean API.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
-@RequestFilters(AuthenticationFilter.class)
-@Consumes(MediaType.APPLICATION_JSON)
 public interface DigitalOceanApi extends Closeable {
 
    /**
@@ -60,6 +56,18 @@ public interface DigitalOceanApi extends Closeable {
     * Returns the Region management API.
     */
    @Delegate
-   RegionApi getreRegionApi();
+   RegionApi getReRegionApi();
+
+   /**
+    * Returns the SSH key management API.
+    */
+   @Delegate
+   KeyPairApi getKeyPairApi();
+
+   /**
+    * Returns the Event API.
+    */
+   @Delegate
+   EventApi getEventApi();
 
 }

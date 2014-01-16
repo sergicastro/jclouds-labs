@@ -18,21 +18,42 @@ package org.jclouds.digitalocean.config;
 
 import static com.google.inject.Scopes.SINGLETON;
 
+import java.lang.reflect.Type;
+import java.security.PublicKey;
+import java.util.Map;
+
+import javax.inject.Singleton;
+
+import org.jclouds.digitalocean.json.SshPublicKeyAdapter;
+import org.jclouds.digitalocean.json.SshPublicKeyAdapter.SshPublicKeyWriter;
 import org.jclouds.json.config.GsonModule.DateAdapter;
 import org.jclouds.json.config.GsonModule.Iso8601DateAdapter;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 
 /**
  * Custom parser bindings.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 public class DigitalOceanParserModule extends AbstractModule {
 
    @Override
    protected void configure() {
       bind(DateAdapter.class).to(Iso8601DateAdapter.class).in(SINGLETON);
+      bind(new TypeLiteral<Function<PublicKey, String>>() {
+      }).to(SshPublicKeyWriter.class);
+   }
+
+   @Provides
+   @Singleton
+   public Map<Type, Object> provideCustomAdapterBindings(SshPublicKeyAdapter sshPublicKeyAdapter) {
+      return ImmutableMap.<Type, Object> of(PublicKey.class, sshPublicKeyAdapter);
    }
 
 }

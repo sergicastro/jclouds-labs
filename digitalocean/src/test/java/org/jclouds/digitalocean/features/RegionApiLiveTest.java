@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  * Live tests for the {@link RegionApi} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "live", testName = "RegionApiLiveTest")
 public class RegionApiLiveTest extends BaseDigitalOceanLiveTest {
@@ -37,11 +38,11 @@ public class RegionApiLiveTest extends BaseDigitalOceanLiveTest {
    @Override
    protected void initialize() {
       super.initialize();
-      regionApi = api.getreRegionApi();
+      regionApi = api.getReRegionApi();
    }
 
    public void testListRegions() {
-      List<Region> regions = regionApi.listRegions();
+      List<Region> regions = regionApi.list();
 
       assertTrue(regions.size() > 0, "Region list should not be empty");
    }

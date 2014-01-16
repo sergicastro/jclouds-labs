@@ -31,12 +31,13 @@ import org.jclouds.http.functions.ParseJson;
  * Parses a list of {@link Region} objects.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class ParseRegionsList extends BaseResponseParser<ListRegionsResponse, List<Region>> {
 
    @Inject
-   public ParseRegionsList(ParseJson<ListRegionsResponse> parser) {
+   ParseRegionsList(ParseJson<ListRegionsResponse> parser) {
       super(parser);
    }
 
@@ -46,7 +47,7 @@ public class ParseRegionsList extends BaseResponseParser<ListRegionsResponse, Li
    }
 
    public static class ListRegionsResponse extends BaseResponse {
-      private List<Region> regions;
+      private final List<Region> regions;
 
       @ConstructorProperties({ "status", "error_message", "message", "regions" })
       public ListRegionsResponse(Status status, String message, String details, List<Region> regions) {

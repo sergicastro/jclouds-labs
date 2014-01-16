@@ -31,12 +31,13 @@ import org.jclouds.http.functions.ParseJson;
  * Parses a list of {@link Image} objects.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class ParseImageList extends BaseResponseParser<ListImagesResponse, List<Image>> {
 
    @Inject
-   public ParseImageList(ParseJson<ListImagesResponse> parser) {
+   ParseImageList(ParseJson<ListImagesResponse> parser) {
       super(parser);
    }
 
@@ -46,7 +47,7 @@ public class ParseImageList extends BaseResponseParser<ListImagesResponse, List<
    }
 
    public static class ListImagesResponse extends BaseResponse {
-      private List<Image> images;
+      private final List<Image> images;
 
       @ConstructorProperties({ "status", "error_message", "message", "images" })
       public ListImagesResponse(Status status, String message, String details, List<Image> images) {

@@ -17,11 +17,14 @@
 package org.jclouds.digitalocean.features;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 import java.util.List;
 
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Droplet;
+import org.jclouds.digitalocean.domain.Droplet.Status;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
 import org.testng.annotations.Test;
 
@@ -32,6 +35,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
  * Mock tests for the {@link DropletApi} class.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Test(groups = "unit", testName = "DropletApiMockTest")
 public class DropletApiMockTest extends BaseDigitalOceanMockTest {
@@ -44,7 +48,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       DropletApi dropletApi = api.getDropletApi();
 
       try {
-         List<Droplet> sizes = dropletApi.listDroplets();
+         List<Droplet> sizes = dropletApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/droplets");
          assertEquals(sizes.size(), 1);
@@ -53,4 +57,45 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
          server.shutdown();
       }
    }
+
+   public void testGetDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/droplet.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         Droplet droplet = dropletApi.get(100823);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/100823");
+         assertNotNull(droplet);
+         assertNotNull(droplet.getBackups());
+         assertNotNull(droplet.getSnapshots());
+         assertEquals(droplet.getName(), "test222");
+         assertEquals(droplet.getStatus(), Status.ACTIVE);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testGetUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         Droplet droplet = dropletApi.get(100823);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/100823");
+         assertNull(droplet);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
 }

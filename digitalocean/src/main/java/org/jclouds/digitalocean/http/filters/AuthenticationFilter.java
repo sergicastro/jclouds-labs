@@ -33,6 +33,7 @@ import com.google.common.base.Supplier;
  * Adds the authentication query parameters to the requests.
  * 
  * @author Sergi Castro
+ * @author Ignasi Barrera
  */
 @Singleton
 public class AuthenticationFilter implements HttpRequestFilter {
@@ -43,7 +44,7 @@ public class AuthenticationFilter implements HttpRequestFilter {
    private final Supplier<Credentials> credentials;
 
    @Inject
-   public AuthenticationFilter(@Provider final Supplier<Credentials> credentials) {
+   AuthenticationFilter(@Provider final Supplier<Credentials> credentials) {
       this.credentials = checkNotNull(credentials, "credential supplier cannot be null");
    }
 
