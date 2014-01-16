@@ -21,9 +21,6 @@ import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.tryFind;
 
-import java.security.KeyPair;
-import java.security.PublicKey;
-
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,8 +28,6 @@ import javax.inject.Named;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.reference.ComputeServiceConstants;
-import org.jclouds.crypto.Crypto;
-import org.jclouds.crypto.Pems;
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.DropletCreation;
@@ -41,12 +36,11 @@ import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.domain.Size;
 import org.jclouds.digitalocean.domain.SshKey;
 import org.jclouds.digitalocean.domain.options.CreateDropletOptions;
-import org.jclouds.domain.LoginCredentials;
 import org.jclouds.logging.Logger;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 
 /**
  * Implementation of the Compute Service for the DigitalOcean API.
@@ -61,45 +55,41 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    protected Logger logger = Logger.NULL;
 
    private final DigitalOceanApi api;
-   private final Crypto crypto;
-   private final Function<PublicKey, String> publicKeyWriter;
 
    @Inject
-   DigitalOceanComputeServiceAdapter(DigitalOceanApi api, Crypto crypto, Function<PublicKey, String> publicKeyWriter) {
+   DigitalOceanComputeServiceAdapter(DigitalOceanApi api) {
       this.api = checkNotNull(api, "api cannot be null");
-      this.crypto = checkNotNull(crypto, "crypto cannot be null");
-      this.publicKeyWriter = checkNotNull(publicKeyWriter, "publicKeyWriter cannot be null");
    }
 
    @Override
    public NodeAndInitialCredentials<Droplet> createNodeWithGroupEncodedIntoName(String group, final String name,
          Template template) {
-      // Generate a new key pair to access the node
-      // TODO: Make this key generation take into account overrides in the
-      // template options
-      KeyPair keys = crypto.rsaKeyPairGenerator().generateKeyPair();
-      SshKey initialKey = api.getKeyPairApi().createKey(group, publicKeyWriter.apply(keys.getPublic()));
+      // Generate a new key pair to access the node, if a public key is present
+      // in the options
+      CreateDropletOptions.Builder options = CreateDropletOptions.builder();
+      if (!Strings.isNullOrEmpty(template.getOptions().getPublicKey())) {
+         logger.debug(">> creating keypair for node...");
+         SshKey key = api.getKeyPairApi().createKey(group, template.getOptions().getPublicKey());
+         logger.debug(">> keypair created! %s", key);
+         options.addSshKeyId(key.getId());
+      }
 
       // TODO: Create a custom template options class to leverage DigitalOcean
       // specific options
-      CreateDropletOptions options = CreateDropletOptions.builder().addSshKeyId(initialKey.getId()).build();
 
       DropletCreation dropletCreation = api.getDropletApi().createDroplet(name,
             Integer.parseInt(template.getImage().getProviderId()), //
             Integer.parseInt(template.getHardware().getProviderId()),//
             Integer.parseInt(template.getLocation().getId()), //
-            options);
+            options.build());
 
       // TODO: Verify the droplet exists at this point (although still inactive)
       Droplet droplet = api.getDropletApi().getDroplet(dropletCreation.getId());
 
-      LoginCredentials nodeCredentials = LoginCredentials.builder() //
-            .identity("root")//
-            .authenticateSudo(Boolean.TRUE.equals(template.getOptions().shouldAuthenticateSudo())) //
-            .privateKey(Pems.pem(keys.getPrivate()))//
-            .build();
-
-      return new NodeAndInitialCredentials<Droplet>(droplet, String.valueOf(droplet.getId()), nodeCredentials);
+      // Don't set the node credentials. If credentials are given in the
+      // options, those will be used. Otherwise, the credentials of the image
+      // will be used.
+      return new NodeAndInitialCredentials<Droplet>(droplet, String.valueOf(droplet.getId()), null);
    }
 
    @Override

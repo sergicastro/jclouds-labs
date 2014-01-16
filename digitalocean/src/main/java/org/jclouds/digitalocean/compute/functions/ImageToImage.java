@@ -52,8 +52,6 @@ public class ImageToImage implements Function<Image, org.jclouds.compute.domain.
             .is64Bit(false) // TODO: Parse is64bit from name
             .build());
 
-      // TODO: builder.defaultCredentials
-
       return builder.build();
    }
 }
