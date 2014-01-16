@@ -143,7 +143,7 @@ public class CreateDropletOptions extends BaseHttpRequestOptions {
       }
 
       /**
-       * enables a private network interface if the region supports private
+       * Enables a private network interface if the region supports private
        * networking.
        */
       public Builder privateNetworking(boolean privateNetworking) {

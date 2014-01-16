@@ -19,7 +19,6 @@ package org.jclouds.digitalocean.compute.strategy;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.tryFind;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -29,6 +28,7 @@ import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.digitalocean.DigitalOceanApi;
+import org.jclouds.digitalocean.compute.options.DigitalOceanTemplateOptions;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.DropletCreation;
 import org.jclouds.digitalocean.domain.Image;
@@ -38,7 +38,6 @@ import org.jclouds.digitalocean.domain.SshKey;
 import org.jclouds.digitalocean.domain.options.CreateDropletOptions;
 import org.jclouds.logging.Logger;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 
@@ -64,9 +63,11 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    @Override
    public NodeAndInitialCredentials<Droplet> createNodeWithGroupEncodedIntoName(String group, final String name,
          Template template) {
-      // Generate a new key pair to access the node, if a public key is present
-      // in the options
+      DigitalOceanTemplateOptions templateOptions = template.getOptions().as(DigitalOceanTemplateOptions.class);
+
       CreateDropletOptions.Builder options = CreateDropletOptions.builder();
+
+      // Check if there is a key to authorize in the portable options
       if (!Strings.isNullOrEmpty(template.getOptions().getPublicKey())) {
          logger.debug(">> creating keypair for node...");
          SshKey key = api.getKeyPairApi().createKey(name, template.getOptions().getPublicKey());
@@ -74,8 +75,16 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
          options.addSshKeyId(key.getId());
       }
 
-      // TODO: Create a custom template options class to leverage DigitalOcean
-      // specific options
+      // DigitalOcean specific options
+      if (!templateOptions.getSshKeyIds().isEmpty()) {
+         options.addSshKeyIds(templateOptions.getSshKeyIds());
+      }
+      if (templateOptions.getPrivateNetworking() != null) {
+         options.privateNetworking(templateOptions.getPrivateNetworking());
+      }
+      if (templateOptions.getBackupsEnabled() != null) {
+         options.backupsEnabled(templateOptions.getBackupsEnabled());
+      }
 
       DropletCreation dropletCreation = api.getDropletApi().createDroplet(name,
             Integer.parseInt(template.getImage().getProviderId()), //
@@ -83,7 +92,10 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
             Integer.parseInt(template.getLocation().getId()), //
             options.build());
 
-      // TODO: Verify the droplet exists at this point (although still inactive)
+      // DigitalOcean does not return the entire Droplet object upon creation.
+      // We have to perform a call to get all the information.
+      // TODO: Verify this call does not fail if the node hasn't been actually
+      // provisioned yet
       Droplet droplet = api.getDropletApi().getDroplet(dropletCreation.getId());
 
       // Don't set the node credentials. If credentials are given in the
@@ -134,20 +146,6 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
 
    @Override
    public void destroyNode(String id) {
-      final Droplet droplet = getNode(id);
-
-      // TODO: Delete droplet
-
-      Optional<SshKey> keyForNode = tryFind(api.getKeyPairApi().listKeys(), new Predicate<SshKey>() {
-         @Override
-         public boolean apply(SshKey input) {
-            return input.getName().equals(droplet.getName());
-         }
-      });
-
-      if (keyForNode.isPresent()) {
-         api.getKeyPairApi().deleteKey(keyForNode.get().getId());
-      }
    }
 
    @Override

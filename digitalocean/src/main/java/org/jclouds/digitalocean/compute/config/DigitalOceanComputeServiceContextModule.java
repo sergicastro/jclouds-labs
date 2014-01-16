@@ -22,12 +22,14 @@ import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.compute.functions.TemplateOptionsToStatement;
+import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.digitalocean.compute.functions.DropletStatusToStatus;
 import org.jclouds.digitalocean.compute.functions.DropletToNodeMetadata;
 import org.jclouds.digitalocean.compute.functions.ImageToImage;
 import org.jclouds.digitalocean.compute.functions.RegionToLocation;
 import org.jclouds.digitalocean.compute.functions.SizeToHardware;
 import org.jclouds.digitalocean.compute.functions.TemplateOptionsToStatementWithoutPublicKey;
+import org.jclouds.digitalocean.compute.options.DigitalOceanTemplateOptions;
 import org.jclouds.digitalocean.compute.strategy.DigitalOceanComputeServiceAdapter;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Image;
@@ -50,8 +52,10 @@ public class DigitalOceanComputeServiceContextModule extends
    @Override
    protected void configure() {
       super.configure();
+
       bind(new TypeLiteral<ComputeServiceAdapter<Droplet, Size, Image, Region>>() {
       }).to(DigitalOceanComputeServiceAdapter.class);
+
       bind(new TypeLiteral<Function<Droplet, NodeMetadata>>() {
       }).to(DropletToNodeMetadata.class);
       bind(new TypeLiteral<Function<Image, org.jclouds.compute.domain.Image>>() {
@@ -62,8 +66,11 @@ public class DigitalOceanComputeServiceContextModule extends
       }).to(SizeToHardware.class);
       bind(new TypeLiteral<Function<Droplet.Status, Status>>() {
       }).to(DropletStatusToStatus.class);
+
       install(new LocationsFromComputeServiceAdapterModule<Droplet, Size, Image, Region>() {
       });
+
+      bind(TemplateOptions.class).to(DigitalOceanTemplateOptions.class);
       bind(TemplateOptionsToStatement.class).to(TemplateOptionsToStatementWithoutPublicKey.class);
    }
 
