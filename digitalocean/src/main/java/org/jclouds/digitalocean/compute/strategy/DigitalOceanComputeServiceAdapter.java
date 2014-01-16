@@ -69,7 +69,7 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
       CreateDropletOptions.Builder options = CreateDropletOptions.builder();
       if (!Strings.isNullOrEmpty(template.getOptions().getPublicKey())) {
          logger.debug(">> creating keypair for node...");
-         SshKey key = api.getKeyPairApi().createKey(group, template.getOptions().getPublicKey());
+         SshKey key = api.getKeyPairApi().createKey(name, template.getOptions().getPublicKey());
          logger.debug(">> keypair created! %s", key);
          options.addSshKeyId(key.getId());
       }
