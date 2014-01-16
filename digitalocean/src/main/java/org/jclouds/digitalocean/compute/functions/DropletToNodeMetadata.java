@@ -31,6 +31,7 @@ import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.compute.domain.NodeMetadataBuilder;
+import org.jclouds.compute.functions.GroupNamingConvention;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.domain.Location;
 import org.jclouds.location.predicates.LocationPredicates;
@@ -52,15 +53,17 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
    private final Supplier<Map<String, ? extends Hardware>> hardwares;
    private final Supplier<Set<? extends Location>> locations;
    private final Function<Droplet.Status, Status> toPortableStatus;
+   private final GroupNamingConvention groupNamingConvention;
 
    @Inject
    DropletToNodeMetadata(Supplier<Map<String, ? extends Image>> images,
          Supplier<Map<String, ? extends Hardware>> hardwares, @Memoized Supplier<Set<? extends Location>> locations,
-         Function<Droplet.Status, Status> toPortableStatus) {
+         Function<Droplet.Status, Status> toPortableStatus, GroupNamingConvention.Factory groupNamingConvention) {
       this.images = checkNotNull(images, "images cannot be null");
       this.hardwares = checkNotNull(hardwares, "hardwares cannot be null");
       this.locations = checkNotNull(locations, "locations cannot be null");
       this.toPortableStatus = checkNotNull(toPortableStatus, "toPortableStatus cannot be null");
+      this.groupNamingConvention = checkNotNull(groupNamingConvention, "groupNamingConvention cannot be null").create();
    }
 
    @Override
@@ -68,6 +71,9 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       NodeMetadataBuilder builder = new NodeMetadataBuilder();
       builder.ids(String.valueOf(input.getId()));
       builder.name(input.getName());
+      builder.hostname(input.getName());
+      builder.group(groupNamingConvention.extractGroup(input.getName()));
+
       builder.hardware(hardwares.get().get(String.valueOf(input.getSizeId())));
       builder.location(find(locations.get(), LocationPredicates.idEquals(String.valueOf(input.getRegionId()))));
 
@@ -82,11 +88,6 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       if (input.getPrivateIp() != null) {
          builder.privateAddresses(ImmutableSet.of(input.getPrivateIp()));
       }
-
-      // TODO: builder.hostname
-      // TODO: builder.loginport
-      // TODO: builder.group
-      // TODO: builder.credentials
 
       return builder.build();
    }

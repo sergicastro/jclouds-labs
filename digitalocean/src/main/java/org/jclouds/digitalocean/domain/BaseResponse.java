@@ -16,12 +16,15 @@
  */
 package org.jclouds.digitalocean.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
 import org.jclouds.javax.annotation.Nullable;
 
+import com.google.common.base.Enums;
+import com.google.common.base.Optional;
 import com.google.inject.name.Named;
 
 /**
@@ -33,7 +36,13 @@ import com.google.inject.name.Named;
 public class BaseResponse {
 
    public static enum Status {
-      OK, ERROR
+      OK, ERROR;
+
+      public static Status fromValue(String value) {
+         Optional<Status> status = Enums.getIfPresent(Status.class, value.toUpperCase());
+         checkArgument(status.isPresent(), "%s is not a valid value", value);
+         return status.get();
+      }
    }
 
    private final Status status;

@@ -73,7 +73,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
          assertNotNull(droplet.getBackups());
          assertNotNull(droplet.getSnapshots());
          assertEquals(droplet.getName(), "test222");
-         assertEquals(droplet.getStatus(), Status.active);
+         assertEquals(droplet.getStatus(), Status.ACTIVE);
       } finally {
          api.close();
          server.shutdown();

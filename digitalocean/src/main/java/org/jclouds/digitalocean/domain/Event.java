@@ -16,10 +16,13 @@
  */
 package org.jclouds.digitalocean.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
+import com.google.common.base.Enums;
+import com.google.common.base.Optional;
 import com.google.inject.name.Named;
 
 /**
@@ -31,8 +34,15 @@ import com.google.inject.name.Named;
 public class Event {
 
    public enum Status {
-      done
-      // TODO: Add missing event status
+      DONE;
+
+      // TODO: Add missing status values
+
+      public static Status fromValue(String value) {
+         Optional<Status> status = Enums.getIfPresent(Status.class, value.toUpperCase());
+         checkArgument(status.isPresent(), "%s is not a valid value", value);
+         return status.get();
+      }
    }
 
    private final int id;

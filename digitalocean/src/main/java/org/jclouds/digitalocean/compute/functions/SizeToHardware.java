@@ -46,7 +46,7 @@ public class SizeToHardware implements Function<Size, Hardware> {
 
       builder.volume(new VolumeBuilder() //
             .size(Float.valueOf(input.getDisk())) //
-            .type(Type.LOCAL) // TODO: Verify the type of the disks
+            .type(Type.LOCAL) //
             .build());
 
       return builder.build();

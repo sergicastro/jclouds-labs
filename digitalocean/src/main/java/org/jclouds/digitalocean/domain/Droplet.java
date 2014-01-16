@@ -16,6 +16,7 @@
  */
 package org.jclouds.digitalocean.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
@@ -27,6 +28,8 @@ import javax.inject.Named;
 
 import org.jclouds.javax.annotation.Nullable;
 
+import com.google.common.base.Enums;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -38,8 +41,13 @@ import com.google.common.collect.ImmutableList;
 public class Droplet {
 
    public enum Status {
-      active
-      // TODO: Add missing droplet status
+      NEW, ACTIVE, OFF;
+
+      public static Status fromValue(String value) {
+         Optional<Status> status = Enums.getIfPresent(Status.class, value.toUpperCase());
+         checkArgument(status.isPresent(), "%s is not a valid value", value);
+         return status.get();
+      }
    }
 
    private final int id;

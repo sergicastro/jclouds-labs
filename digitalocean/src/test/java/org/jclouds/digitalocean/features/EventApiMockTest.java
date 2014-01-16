@@ -50,7 +50,7 @@ public class EventApiMockTest extends BaseDigitalOceanMockTest {
 
          assertRequestHasCommonFields(server.takeRequest(), "/events/7499");
          assertNotNull(event);
-         assertEquals(event.getStatus(), Status.done);
+         assertEquals(event.getStatus(), Status.DONE);
       } finally {
          api.close();
          server.shutdown();
