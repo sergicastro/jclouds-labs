@@ -46,11 +46,30 @@ public class EventApiMockTest extends BaseDigitalOceanMockTest {
       EventApi eventApi = api.getEventApi();
 
       try {
-         Event event = eventApi.getEvent(7499);
+         Event event = eventApi.get(7499);
 
          assertRequestHasCommonFields(server.takeRequest(), "/events/7499");
          assertNotNull(event);
          assertEquals(event.getStatus(), Status.DONE);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testGetPendingEvent() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/event-pending.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      EventApi eventApi = api.getEventApi();
+
+      try {
+         Event event = eventApi.get(7499);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/events/7499");
+         assertNotNull(event);
+         assertEquals(event.getStatus(), Status.PENDING);
       } finally {
          api.close();
          server.shutdown();
@@ -65,7 +84,7 @@ public class EventApiMockTest extends BaseDigitalOceanMockTest {
       EventApi eventApi = api.getEventApi();
 
       try {
-         Event event = eventApi.getEvent(7499);
+         Event event = eventApi.get(7499);
 
          assertRequestHasCommonFields(server.takeRequest(), "/events/7499");
          assertNull(event);

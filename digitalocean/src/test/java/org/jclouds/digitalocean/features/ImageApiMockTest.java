@@ -52,7 +52,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       ImageApi imageApi = api.getImageApi();
 
       try {
-         imageApi.listImages();
+         imageApi.list();
       } finally {
          api.close();
          server.shutdown();
@@ -67,7 +67,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       ImageApi imageApi = api.getImageApi();
 
       try {
-         List<Image> images = imageApi.listImages();
+         List<Image> images = imageApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/images");
          assertEquals(images.size(), 3);
@@ -85,7 +85,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       ImageApi imageApi = api.getImageApi();
 
       try {
-         Image image = imageApi.getImage(2);
+         Image image = imageApi.get(2);
 
          assertRequestHasCommonFields(server.takeRequest(), "/images/2");
          assertNotNull(image);
@@ -106,7 +106,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       ImageApi imageApi = api.getImageApi();
 
       try {
-         Image image = imageApi.getImage(15);
+         Image image = imageApi.get(15);
 
          assertRequestHasCommonFields(server.takeRequest(), "/images/15");
          assertNull(image);
@@ -124,7 +124,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       ImageApi imageApi = api.getImageApi();
 
       try {
-         imageApi.deleteImage(15);
+         imageApi.delete(15);
 
          assertRequestHasCommonFields(server.takeRequest(), "/images/15/destroy");
       } finally {
@@ -142,7 +142,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
 
       try {
          try {
-            imageApi.deleteImage(15);
+            imageApi.delete(15);
             fail("Delete image should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
@@ -164,7 +164,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
 
       try {
          try {
-            imageApi.transferImage(47, 23);
+            imageApi.transfer(47, 23);
             fail("Transfer image should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
@@ -186,7 +186,7 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
       ImageApi imageApi = api.getImageApi();
 
       try {
-         int eventId = imageApi.transferImage(47, 23);
+         int eventId = imageApi.transfer(47, 23);
 
          assertRequestHasParameters(server.takeRequest(), "/images/47/transfer",
                ImmutableMultimap.of("region_id", "23"));

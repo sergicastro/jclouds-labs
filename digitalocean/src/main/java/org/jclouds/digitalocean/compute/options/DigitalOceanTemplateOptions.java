@@ -86,8 +86,12 @@ public class DigitalOceanTemplateOptions extends TemplateOptions implements Clon
       super.copyTo(to);
       if (to instanceof DigitalOceanTemplateOptions) {
          DigitalOceanTemplateOptions eTo = DigitalOceanTemplateOptions.class.cast(to);
-         eTo.privateNetworking(privateNetworking);
-         eTo.backupsEnabled(backupsEnabled);
+         if (privateNetworking != null) {
+            eTo.privateNetworking(privateNetworking);
+         }
+         if (backupsEnabled != null) {
+            eTo.backupsEnabled(backupsEnabled);
+         }
          eTo.sshKeyIds(sshKeyIds);
       }
    }

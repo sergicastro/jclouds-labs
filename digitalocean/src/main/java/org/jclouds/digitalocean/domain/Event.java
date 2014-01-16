@@ -21,6 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 
+import org.jclouds.javax.annotation.Nullable;
+
 import com.google.common.base.Enums;
 import com.google.common.base.Optional;
 import com.google.inject.name.Named;
@@ -34,11 +36,14 @@ import com.google.inject.name.Named;
 public class Event {
 
    public enum Status {
-      DONE;
-
-      // TODO: Add missing status values
+      DONE, PENDING;
 
       public static Status fromValue(String value) {
+         // DigitalOcean return a 'null' status when the operation is still in
+         // progress
+         if (value == null) {
+            return PENDING;
+         }
          Optional<Status> status = Enums.getIfPresent(Status.class, value.toUpperCase());
          checkArgument(status.isPresent(), "%s is not a valid value", value);
          return status.get();
@@ -55,9 +60,9 @@ public class Event {
    private final int dropletId;
 
    @ConstructorProperties({ "id", "action_status", "event_type_id", "percentage", "droplet_id" })
-   public Event(int id, Status status, int typeId, String percentage, int dropletId) {
+   public Event(int id, @Nullable Status status, int typeId, String percentage, int dropletId) {
       this.id = id;
-      this.status = checkNotNull(status, "status cannot be null");
+      this.status = status == null ? Status.PENDING : status;
       this.typeId = typeId;
       this.percentage = checkNotNull(percentage, "percentage cannot be null");
       this.dropletId = dropletId;

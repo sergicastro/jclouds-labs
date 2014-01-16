@@ -42,7 +42,7 @@ public class SizeApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testListSizes() {
-      List<Size> sizes = sizesApi.listSizes();
+      List<Size> sizes = sizesApi.list();
 
       assertTrue(sizes.size() > 0, "Size list should not be empty");
    }

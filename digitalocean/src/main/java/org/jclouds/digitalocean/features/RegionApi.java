@@ -51,5 +51,5 @@ public interface RegionApi extends Closeable {
    @Named("region:list")
    @GET
    @ResponseParser(ParseRegionsList.class)
-   List<Region> listRegions();
+   List<Region> list();
 }

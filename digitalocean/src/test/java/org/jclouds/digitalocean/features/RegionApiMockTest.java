@@ -45,7 +45,7 @@ public class RegionApiMockTest extends BaseDigitalOceanMockTest {
       RegionApi regionApi = api.getReRegionApi();
 
       try {
-         List<Region> regions = regionApi.listRegions();
+         List<Region> regions = regionApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/regions");
          assertEquals(regions.size(), 4);

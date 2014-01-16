@@ -57,5 +57,5 @@ public interface EventApi extends Closeable {
    @Path("/{id}")
    @ResponseParser(ParseEvent.class)
    @Fallback(NullOnNotFoundOr404.class)
-   Event getEvent(@PathParam("id") int id);
+   Event get(@PathParam("id") int id);
 }

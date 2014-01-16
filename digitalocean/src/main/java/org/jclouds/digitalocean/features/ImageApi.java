@@ -57,7 +57,7 @@ public interface ImageApi extends Closeable {
    @Named("image:list")
    @GET
    @ResponseParser(ParseImageList.class)
-   List<Image> listImages();
+   List<Image> list();
 
    /**
     * Gets the details of the given image.
@@ -71,7 +71,7 @@ public interface ImageApi extends Closeable {
    @Path("/{id}")
    @ResponseParser(ParseImage.class)
    @Fallback(NullOnNotFoundOr404.class)
-   Image getImage(@PathParam("id") int id);
+   Image get(@PathParam("id") int id);
 
    /**
     * Deletes an existing image.
@@ -81,19 +81,19 @@ public interface ImageApi extends Closeable {
    @Named("image:delete")
    @GET
    @Path("/{id}/destroy")
-   void deleteImage(@PathParam("id") int id);
+   void delete(@PathParam("id") int id);
 
    /**
     * Transfers the image to the given region.
     * 
     * @param id The id of the image to transfer.
     * @param regionId The id of the region to which the image will be
-    *        transferred.
+    *           transferred.
     * @return The id of the event to track the transfer process.
     */
-   @Named("image:delete")
+   @Named("image:transfer")
    @GET
    @Path("/{id}/transfer")
    @ResponseParser(ParseEventId.class)
-   int transferImage(@PathParam("id") int id, @QueryParam("region_id") int regionId);
+   int transfer(@PathParam("id") int id, @QueryParam("region_id") int regionId);
 }

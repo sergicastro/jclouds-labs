@@ -42,7 +42,7 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testListDroplets() {
-      List<Droplet> droplets = dropletApi.listDroplets();
+      List<Droplet> droplets = dropletApi.list();
 
       assertTrue(droplets.size() > 0, "Droplet list should not be empty");
    }

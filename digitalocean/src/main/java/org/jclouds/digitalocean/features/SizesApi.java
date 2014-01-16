@@ -51,5 +51,5 @@ public interface SizesApi extends Closeable {
    @Named("size:list")
    @GET
    @ResponseParser(ParseSizeList.class)
-   List<Size> listSizes();
+   List<Size> list();
 }

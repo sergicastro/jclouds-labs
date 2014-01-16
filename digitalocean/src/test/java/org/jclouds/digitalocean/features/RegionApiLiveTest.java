@@ -42,7 +42,7 @@ public class RegionApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testListRegions() {
-      List<Region> regions = regionApi.listRegions();
+      List<Region> regions = regionApi.list();
 
       assertTrue(regions.size() > 0, "Region list should not be empty");
    }

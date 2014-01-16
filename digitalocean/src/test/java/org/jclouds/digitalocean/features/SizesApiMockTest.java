@@ -45,7 +45,7 @@ public class SizesApiMockTest extends BaseDigitalOceanMockTest {
       SizesApi sizesApi = api.getSizesApi();
 
       try {
-         List<Size> sizes = sizesApi.listSizes();
+         List<Size> sizes = sizesApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/sizes");
          assertEquals(sizes.size(), 4);

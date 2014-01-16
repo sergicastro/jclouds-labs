@@ -48,7 +48,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       DropletApi dropletApi = api.getDropletApi();
 
       try {
-         List<Droplet> sizes = dropletApi.listDroplets();
+         List<Droplet> sizes = dropletApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/droplets");
          assertEquals(sizes.size(), 1);
@@ -66,7 +66,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       DropletApi dropletApi = api.getDropletApi();
 
       try {
-         Droplet droplet = dropletApi.getDroplet(100823);
+         Droplet droplet = dropletApi.get(100823);
 
          assertRequestHasCommonFields(server.takeRequest(), "/droplets/100823");
          assertNotNull(droplet);
@@ -80,7 +80,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testGetUnexistingEvent() throws Exception {
+   public void testGetUnexistingDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -88,7 +88,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       DropletApi dropletApi = api.getDropletApi();
 
       try {
-         Droplet droplet = dropletApi.getDroplet(100823);
+         Droplet droplet = dropletApi.get(100823);
 
          assertRequestHasCommonFields(server.takeRequest(), "/droplets/100823");
          assertNull(droplet);
@@ -97,4 +97,5 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
          server.shutdown();
       }
    }
+
 }

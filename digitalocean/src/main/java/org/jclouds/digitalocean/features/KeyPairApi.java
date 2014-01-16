@@ -56,7 +56,7 @@ public interface KeyPairApi extends Closeable {
    @Named("key:list")
    @GET
    @ResponseParser(ParseKeyList.class)
-   List<SshKey> listKeys();
+   List<SshKey> list();
 
    /**
     * Gets the details of an existing SSH key pair.
@@ -70,7 +70,7 @@ public interface KeyPairApi extends Closeable {
    @Path("/{id}")
    @ResponseParser(ParseKey.class)
    @Fallback(NullOnNotFoundOr404.class)
-   SshKey getKey(@PathParam("id") int id);
+   SshKey get(@PathParam("id") int id);
 
    /**
     * Creates a new SSH key pair.
@@ -83,7 +83,7 @@ public interface KeyPairApi extends Closeable {
    @GET
    @Path("/new")
    @ResponseParser(ParseKey.class)
-   SshKey createKey(@QueryParam("name") String name, @QueryParam("ssh_pub_key") String publicKey);
+   SshKey create(@QueryParam("name") String name, @QueryParam("ssh_pub_key") String publicKey);
 
    /**
     * Changes the SSH key for the given key pair.
@@ -96,7 +96,7 @@ public interface KeyPairApi extends Closeable {
    @GET
    @Path("/{id}/edit")
    @ResponseParser(ParseKey.class)
-   SshKey editKey(@PathParam("id") int id, @QueryParam("ssh_pub_key") String newPublicKey);
+   SshKey edit(@PathParam("id") int id, @QueryParam("ssh_pub_key") String newPublicKey);
 
    /**
     * Deletes an existing SSH key pair.
@@ -106,5 +106,5 @@ public interface KeyPairApi extends Closeable {
    @Named("key:delete")
    @GET
    @Path("/{id}/destroy")
-   void deleteKey(@PathParam("id") int id);
+   void delete(@PathParam("id") int id);
 }

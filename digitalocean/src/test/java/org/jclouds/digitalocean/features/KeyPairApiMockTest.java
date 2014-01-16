@@ -52,7 +52,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
       KeyPairApi keyPairApi = api.getKeyPairApi();
 
       try {
-         List<SshKey> keys = keyPairApi.listKeys();
+         List<SshKey> keys = keyPairApi.list();
 
          assertRequestHasCommonFields(server.takeRequest(), "/ssh_keys");
          assertEquals(keys.size(), 1);
@@ -70,7 +70,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
       KeyPairApi keyPairApi = api.getKeyPairApi();
 
       try {
-         SshKey key = keyPairApi.getKey(47);
+         SshKey key = keyPairApi.get(47);
 
          assertRequestHasCommonFields(server.takeRequest(), "/ssh_keys/47");
          assertEquals(key.getId(), 47);
@@ -90,7 +90,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
       KeyPairApi keyPairApi = api.getKeyPairApi();
 
       try {
-         SshKey key = keyPairApi.getKey(47);
+         SshKey key = keyPairApi.get(47);
 
          assertRequestHasCommonFields(server.takeRequest(), "/ssh_keys/47");
          assertNull(key);
@@ -110,7 +110,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
 
       try {
          String publicKey = Resources.toString(getClass().getResource("/ssh-rsa.txt"), Charsets.UTF_8);
-         SshKey key = keyPairApi.createKey("my_key", publicKey);
+         SshKey key = keyPairApi.create("my_key", publicKey);
 
          assertRequestHasParameters(server.takeRequest(), "/ssh_keys/new",
                ImmutableMultimap.of("name", "my_key", "ssh_pub_key", publicKey));
@@ -134,7 +134,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
 
       try {
          String publicKey = Resources.toString(getClass().getResource("/ssh-rsa.txt"), Charsets.UTF_8);
-         SshKey key = keyPairApi.editKey(47, publicKey);
+         SshKey key = keyPairApi.edit(47, publicKey);
 
          assertRequestHasParameters(server.takeRequest(), "/ssh_keys/47/edit",
                ImmutableMultimap.of("ssh_pub_key", publicKey));
@@ -160,7 +160,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
          String publicKey = Resources.toString(getClass().getResource("/ssh-rsa.txt"), Charsets.UTF_8);
 
          try {
-            keyPairApi.editKey(47, publicKey);
+            keyPairApi.edit(47, publicKey);
             fail("Edit key should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
@@ -183,7 +183,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
       KeyPairApi keyPairApi = api.getKeyPairApi();
 
       try {
-         keyPairApi.deleteKey(47);
+         keyPairApi.delete(47);
 
          assertRequestHasCommonFields(server.takeRequest(), "/ssh_keys/47/destroy");
       } finally {
@@ -202,7 +202,7 @@ public class KeyPairApiMockTest extends BaseDigitalOceanMockTest {
 
       try {
          try {
-            keyPairApi.deleteKey(47);
+            keyPairApi.delete(47);
             fail("Delete key should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception

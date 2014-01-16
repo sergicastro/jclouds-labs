@@ -31,5 +31,4 @@ public class DigitalOceanProviderMetadataTest extends BaseProviderMetadataTest {
    public DigitalOceanProviderMetadataTest() {
       super(new DigitalOceanProviderMetadata(), new DigitalOceanApiMetadata());
    }
-
 }

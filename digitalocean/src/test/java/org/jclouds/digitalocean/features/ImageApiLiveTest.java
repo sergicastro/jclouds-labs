@@ -53,7 +53,7 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testListImages() {
-      List<Image> images = imageApi.listImages();
+      List<Image> images = imageApi.list();
 
       assertTrue(images.size() > 0, "Image list should not be empty");
       image = images.get(0);
@@ -61,31 +61,31 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
    @Test(dependsOnMethods = "testListImages")
    public void testGetImage() {
-      assertNotNull(imageApi.getImage(image.getId()), "The image should not be null");
+      assertNotNull(imageApi.get(image.getId()), "The image should not be null");
    }
 
    public void testGetImageNotFound() {
-      assertNull(imageApi.getImage(-1));
+      assertNull(imageApi.get(-1));
    }
 
    @Test(dependsOnMethods = "testListImages")
    public void testTransferImage() {
       // Find a different region to be used as the destination
-      Region region = find(regionApi.listRegions(), new Predicate<Region>() {
+      Region region = find(regionApi.list(), new Predicate<Region>() {
          @Override
          public boolean apply(Region input) {
             return input.getId() != image.getId();
          }
       });
 
-      int eventId = imageApi.transferImage(image.getId(), region.getId());
+      int eventId = imageApi.transfer(image.getId(), region.getId());
       assertTrue(eventId > 0);
    }
 
    @Test(dependsOnMethods = { "testListImages", "testGetImageNotFound", "testGetImage", "testTransferImage" })
    public void testDeleteImage() throws IOException {
       int imageId = image.getId();
-      imageApi.deleteImage(imageId);
-      assertNull(imageApi.getImage(imageId));
+      imageApi.delete(imageId);
+      assertNull(imageApi.get(imageId));
    }
 }

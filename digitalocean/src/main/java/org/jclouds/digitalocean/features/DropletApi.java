@@ -33,6 +33,7 @@ import org.jclouds.digitalocean.domain.options.CreateDropletOptions;
 import org.jclouds.digitalocean.functions.ParseDroplet;
 import org.jclouds.digitalocean.functions.ParseDropletCreation;
 import org.jclouds.digitalocean.functions.ParseDropletList;
+import org.jclouds.digitalocean.functions.ParseEventId;
 import org.jclouds.digitalocean.http.filters.AuthenticationFilter;
 import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.RequestFilters;
@@ -59,7 +60,7 @@ public interface DropletApi extends Closeable {
    @Named("droplet:list")
    @GET
    @ResponseParser(ParseDropletList.class)
-   List<Droplet> listDroplets();
+   List<Droplet> list();
 
    /**
     * Gets the details of the given droplet.
@@ -73,7 +74,7 @@ public interface DropletApi extends Closeable {
    @Path("/{id}")
    @ResponseParser(ParseDroplet.class)
    @Fallback(NullOnNotFoundOr404.class)
-   Droplet getDroplet(@PathParam("id") int id);
+   Droplet get(@PathParam("id") int id);
 
    /**
     * Creates a new droplet.
@@ -88,7 +89,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/new")
    @ResponseParser(ParseDropletCreation.class)
-   DropletCreation createDroplet(@QueryParam("name") String name, @QueryParam("image_id") int imageId,
+   DropletCreation create(@QueryParam("name") String name, @QueryParam("image_id") int imageId,
          @QueryParam("size_id") int sizeId, @QueryParam("region_id") int regionId);
 
    /**
@@ -105,7 +106,189 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/new")
    @ResponseParser(ParseDropletCreation.class)
-   DropletCreation createDroplet(@QueryParam("name") String name, @QueryParam("image_id") int imageId,
+   DropletCreation create(@QueryParam("name") String name, @QueryParam("image_id") int imageId,
          @QueryParam("size_id") int sizeId, @QueryParam("region_id") int regionId, CreateDropletOptions options);
 
+   /**
+    * Reboot the given droplet.
+    * 
+    * @param id The id of the droplet to reboot.
+    * @return The id of the event to track the reboot process.
+    */
+   @Named("droplet:reboot")
+   @GET
+   @Path("/{id}/reboot")
+   @ResponseParser(ParseEventId.class)
+   int reboot(@QueryParam("id") int id);
+
+   /**
+    * Power cycle the given droplet.
+    * 
+    * @param id The id of the droplet to power cycle.
+    * @return The id of the event to track the power cycle process.
+    */
+   @Named("droplet:powercycle")
+   @GET
+   @Path("/{id}/power_cycle")
+   @ResponseParser(ParseEventId.class)
+   int powerCycle(@QueryParam("id") int id);
+
+   /**
+    * Shutdown the given droplet.
+    * 
+    * @param id The id of the droplet to shutdown.
+    * @return The id of the event to track the shutdown process.
+    */
+   @Named("droplet:shutdown")
+   @GET
+   @Path("/{id}/shutdown")
+   @ResponseParser(ParseEventId.class)
+   int shutdown(@QueryParam("id") int id);
+
+   /**
+    * Power off the given droplet.
+    * 
+    * @param id The id of the droplet to power off.
+    * @return The id of the event to track the power off process.
+    */
+   @Named("droplet:poweroff")
+   @GET
+   @Path("/{id}/power_off")
+   @ResponseParser(ParseEventId.class)
+   int powerOff(@QueryParam("id") int id);
+
+   /**
+    * Power on the given droplet.
+    * 
+    * @param id The id of the droplet to power on.
+    * @return The id of the event to track the power on process.
+    */
+   @Named("droplet:poweron")
+   @GET
+   @Path("/{id}/power_on")
+   @ResponseParser(ParseEventId.class)
+   int powerOn(@QueryParam("id") int id);
+
+   /**
+    * Resets the password for the given droplet.
+    * 
+    * @param id The id of the droplet to reset the password to.
+    * @return The id of the event to track the password reset process.
+    */
+   @Named("droplet:resetpassword")
+   @GET
+   @Path("/{id}/password_reset")
+   @ResponseParser(ParseEventId.class)
+   int resetPassword(@QueryParam("id") int id);
+
+   /**
+    * Changes the size for the given droplet.
+    * 
+    * @param id The id of the droplet to change the size to.
+    * @param sizeId The id of the new size for the droplet.
+    * @return The id of the event to track the resize process.
+    */
+   @Named("droplet:resize")
+   @GET
+   @Path("/{id}/resize")
+   @ResponseParser(ParseEventId.class)
+   int resize(@QueryParam("id") int id, @QueryParam("size_id") int sizeId);
+
+   /**
+    * Take a snapshot of the droplet once it has been powered off.
+    * 
+    * @param id The id of the droplet to take the snapshot of.
+    * @return The id of the event to track the snapshot process.
+    */
+   @Named("droplet:snapshot")
+   @GET
+   @Path("/{id}/snapshot")
+   @ResponseParser(ParseEventId.class)
+   int snapshot(@QueryParam("id") int id);
+
+   /**
+    * Take a snapshot of the droplet once it has been powered off.
+    * 
+    * @param id The id of the droplet to take the snapshot of.
+    * @param name The name for the snapshot.
+    * @return The id of the event to track the snapshot process.
+    */
+   @Named("droplet:snapshot")
+   @GET
+   @Path("/{id}/snapshot")
+   @ResponseParser(ParseEventId.class)
+   int snapshot(@QueryParam("id") int id, @QueryParam("name") String name);
+
+   /**
+    * Restore a droplet with a previous image or snapshot.
+    * <p>
+    * This will be a mirror copy of the image or snapshot to your droplet. Be
+    * sure you have backed up any necessary information prior to restore.
+    * 
+    * @param id The id of the droplet to restore.
+    * @param imageId The id of the image or snapshot to use to restore the
+    *           droplet.
+    * @return The id of the event to track the restore process.
+    */
+   @Named("droplet:restore")
+   @GET
+   @Path("/{id}/restore")
+   @ResponseParser(ParseEventId.class)
+   int restore(@QueryParam("id") int id, @QueryParam("image_id") int imageId);
+
+   /**
+    * Rebuild a droplet with a default image.
+    * <p>
+    * This is useful if you want to start again but retain the same IP address
+    * for your droplet.
+    * 
+    * @param id The id of the droplet to rebuild.
+    * @param imageId The id of the image or snapshot to use to restore the
+    *           droplet.
+    * @return The id of the event to track the restore process.
+    */
+   @Named("droplet:rebuild")
+   @GET
+   @Path("/{id}/rebuild")
+   @ResponseParser(ParseEventId.class)
+   int rebuild(@QueryParam("id") int id, @QueryParam("image_id") int imageId);
+
+   /**
+    * Renames a droplet to the specified name.
+    * 
+    * @param id The id of the droplet to rename.
+    * @param name The new name for the droplet.
+    * @return The id of the event to track the rename process.
+    */
+   @Named("droplet:rename")
+   @GET
+   @Path("/{id}/rename")
+   @ResponseParser(ParseEventId.class)
+   int rename(@QueryParam("id") int id, @QueryParam("name") String name);
+
+   /**
+    * Destroy the given droplet.
+    * 
+    * @param id The id of the droplet to destroy.
+    * @return The id of the event to track the destroy process.
+    */
+   @Named("droplet:destroy")
+   @GET
+   @Path("/{id}/destroy")
+   @ResponseParser(ParseEventId.class)
+   int destroy(@QueryParam("id") int id);
+
+   /**
+    * Destroy the given droplet.
+    * 
+    * @param id The id of the droplet to destroy.
+    * @param scrubData If true this will strictly write 0s to your prior
+    *           partition to ensure that all data is completely erased.
+    * @return The id of the event to track the destroy process.
+    */
+   @Named("droplet:destroy")
+   @GET
+   @Path("/{id}/destroy")
+   @ResponseParser(ParseEventId.class)
+   int destroy(@QueryParam("id") int id, @QueryParam("scrub_data") boolean scrubData);
 }

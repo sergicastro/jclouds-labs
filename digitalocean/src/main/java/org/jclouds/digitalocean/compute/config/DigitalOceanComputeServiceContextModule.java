@@ -16,6 +16,11 @@
  */
 package org.jclouds.digitalocean.compute.config;
 
+import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_RUNNING;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
@@ -23,6 +28,9 @@ import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.compute.functions.TemplateOptionsToStatement;
 import org.jclouds.compute.options.TemplateOptions;
+import org.jclouds.compute.reference.ComputeServiceConstants.PollPeriod;
+import org.jclouds.compute.reference.ComputeServiceConstants.Timeouts;
+import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.compute.functions.DropletStatusToStatus;
 import org.jclouds.digitalocean.compute.functions.DropletToNodeMetadata;
 import org.jclouds.digitalocean.compute.functions.ImageToImage;
@@ -32,12 +40,17 @@ import org.jclouds.digitalocean.compute.functions.TemplateOptionsToStatementWith
 import org.jclouds.digitalocean.compute.options.DigitalOceanTemplateOptions;
 import org.jclouds.digitalocean.compute.strategy.DigitalOceanComputeServiceAdapter;
 import org.jclouds.digitalocean.domain.Droplet;
+import org.jclouds.digitalocean.domain.DropletCreation;
+import org.jclouds.digitalocean.domain.Event;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.domain.Size;
 import org.jclouds.domain.Location;
+import org.jclouds.util.Predicates2;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -72,6 +85,20 @@ public class DigitalOceanComputeServiceContextModule extends
 
       bind(TemplateOptions.class).to(DigitalOceanTemplateOptions.class);
       bind(TemplateOptionsToStatement.class).to(TemplateOptionsToStatementWithoutPublicKey.class);
+   }
+
+   @Provides
+   @Singleton
+   @Named(TIMEOUT_NODE_RUNNING)
+   protected Predicate<DropletCreation> provideDropletCreatedPredicate(final DigitalOceanApi api, Timeouts timeouts,
+         PollPeriod pollPeriod) {
+      return Predicates2.retry(new Predicate<DropletCreation>() {
+         @Override
+         public boolean apply(DropletCreation input) {
+            Event event = api.getEventApi().get(input.getEventId());
+            return Event.Status.DONE == event.getStatus();
+         }
+      }, timeouts.nodeRunning, pollPeriod.pollInitialPeriod, pollPeriod.pollMaxPeriod);
    }
 
 }

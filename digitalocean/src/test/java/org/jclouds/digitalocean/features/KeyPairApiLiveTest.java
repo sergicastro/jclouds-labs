@@ -52,7 +52,7 @@ public class KeyPairApiLiveTest extends BaseDigitalOceanLiveTest {
 
    public void testCreateKey() throws IOException {
       String publicKey = Resources.toString(getClass().getResource("/ssh-rsa.txt"), Charsets.UTF_8);
-      key = keyPairApi.createKey("foo", publicKey);
+      key = keyPairApi.create("foo", publicKey);
 
       assertNotNull(key);
       assertNotNull(key.getId());
@@ -63,20 +63,20 @@ public class KeyPairApiLiveTest extends BaseDigitalOceanLiveTest {
 
    @Test(dependsOnMethods = "testCreateKey")
    public void testListKeys() {
-      List<SshKey> keys = keyPairApi.listKeys();
+      List<SshKey> keys = keyPairApi.list();
 
       assertTrue(keys.size() > 0, "SSH key list should not be empty");
    }
 
    @Test(dependsOnMethods = "testCreateKey")
    public void testGetKey() {
-      assertNotNull(keyPairApi.getKey(key.getId()), "The SSH key should not be null");
+      assertNotNull(keyPairApi.get(key.getId()), "The SSH key should not be null");
    }
 
    @Test(dependsOnMethods = "testCreateKey")
    public void testEditKey() throws IOException {
       String newKey = Resources.toString(getClass().getResource("/ssh-dsa.txt"), Charsets.UTF_8);
-      SshKey updated = keyPairApi.editKey(key.getId(), newKey);
+      SshKey updated = keyPairApi.edit(key.getId(), newKey);
 
       assertNotNull(updated.getPublicKey());
       assertEquals(updated.getPublicKey().getAlgorithm(), "DSA");
@@ -85,8 +85,8 @@ public class KeyPairApiLiveTest extends BaseDigitalOceanLiveTest {
    @Test(dependsOnMethods = { "testEditKey", "testGetKey", "testListKeys" })
    public void testDeleteKey() throws IOException {
       int keyId = key.getId();
-      keyPairApi.deleteKey(keyId);
-      assertNull(keyPairApi.getKey(keyId));
+      keyPairApi.delete(keyId);
+      assertNull(keyPairApi.get(keyId));
    }
 
 }
