@@ -17,7 +17,7 @@
 package org.jclouds.digitalocean.domain;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.primitives.Ints.tryParse;
 
 import java.beans.ConstructorProperties;
 
@@ -55,16 +55,16 @@ public class Event {
    private final Status status;
    @Named("event_type_id")
    private final int typeId;
-   private final String percentage;
+   private final Integer percentage;
    @Named("droplet_id")
    private final int dropletId;
 
    @ConstructorProperties({ "id", "action_status", "event_type_id", "percentage", "droplet_id" })
-   public Event(int id, @Nullable Status status, int typeId, String percentage, int dropletId) {
+   public Event(int id, @Nullable Status status, int typeId, @Nullable String percentage, int dropletId) {
       this.id = id;
       this.status = status == null ? Status.PENDING : status;
       this.typeId = typeId;
-      this.percentage = checkNotNull(percentage, "percentage cannot be null");
+      this.percentage = percentage == null ? null : tryParse(percentage);
       this.dropletId = dropletId;
    }
 
@@ -80,7 +80,7 @@ public class Event {
       return typeId;
    }
 
-   public String getPercentage() {
+   public Integer getPercentage() {
       return percentage;
    }
 
