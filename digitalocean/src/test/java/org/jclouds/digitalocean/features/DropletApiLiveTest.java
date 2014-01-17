@@ -84,6 +84,20 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    @Test(dependsOnMethods = "testGetDroplet")
+   public void testPowerOffDroplet() {
+      int event = api.getDropletApi().powerOff(droplet.getId());
+      assertTrue(event > 0, "The event id should not be null");
+      waitForEvent(event);
+   }
+
+   @Test(dependsOnMethods = "testPowerOffDroplet")
+   public void testPowerOnDroplet() {
+      int event = api.getDropletApi().powerOn(droplet.getId());
+      assertTrue(event > 0, "The event id should not be null");
+      waitForEvent(event);
+   }
+
+   @Test(dependsOnMethods = "testPowerOnDroplet")
    public void testRebootDroplet() {
       int event = api.getDropletApi().reboot(droplet.getId());
       assertTrue(event > 0, "The event id should not be null");
@@ -128,14 +142,12 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    @Test(dependsOnMethods = "testRestoreDroplet")
-   public void testPowerOffDroplet() {
-      int event = api.getDropletApi().powerOff(droplet.getId());
-      assertTrue(event > 0, "The event id should not be null");
-      waitForEvent(event);
-   }
-
-   @Test(dependsOnMethods = "testPowerOffDroplet")
    public void testSnapshotDroplet() {
+      // Snapshot requires the droplet to be powered off
+      int powerOffEvent = api.getDropletApi().powerOff(droplet.getId());
+      assertTrue(powerOffEvent > 0, "The event id should not be null");
+      waitForEvent(powerOffEvent);
+
       int event = api.getDropletApi().snapshot(droplet.getId(), "testsnapshot");
       assertTrue(event > 0, "The event id should not be null");
       waitForEvent(event);
@@ -153,17 +165,15 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
 
    @Test(dependsOnMethods = "testSnapshotDroplet")
    public void testResizeDroplet() {
-      Size newSize = sizes.get(1);
-      int event = api.getDropletApi().resize(droplet.getId(), newSize.getId());
-      assertTrue(event > 0, "The event id should not be null");
-      waitForEvent(event);
-   }
+      // Resize requires the droplet to be powered off
+      int powerOffEvent = api.getDropletApi().powerOff(droplet.getId());
+      assertTrue(powerOffEvent > 0, "The event id should not be null");
+      waitForEvent(powerOffEvent);
 
-   @Test(dependsOnMethods = "testResizeDroplet")
-   public void testPowerOnDroplet() {
-      int event = api.getDropletApi().powerOn(droplet.getId());
-      assertTrue(event > 0, "The event id should not be null");
-      waitForEvent(event);
+      Size newSize = sizes.get(1);
+      int resizeEvent = api.getDropletApi().resize(droplet.getId(), newSize.getId());
+      assertTrue(resizeEvent > 0, "The event id should not be null");
+      waitForEvent(resizeEvent);
    }
 
    @Test(dependsOnMethods = "testResizeDroplet")
