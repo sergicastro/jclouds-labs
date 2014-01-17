@@ -16,8 +16,19 @@
  */
 package org.jclouds.digitalocean.internal;
 
+import java.util.concurrent.TimeUnit;
+
 import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.digitalocean.DigitalOceanApi;
+import org.jclouds.digitalocean.domain.Event;
+import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.domain.Region;
+import org.jclouds.digitalocean.domain.Size;
+import org.jclouds.util.Predicates2;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 
 /**
  * Base class for the DigitalOcean live tests.
@@ -27,8 +38,40 @@ import org.jclouds.digitalocean.DigitalOceanApi;
  */
 public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
 
+   protected static final int DEFAULT_TIMEOUT_SECONDS = 600;
+   protected static final int DEFAULT_POLL_SECONDS = 1;
+
+   protected Size defaultSize;
+   protected Image defaultImage;
+   protected Region defaultRegion;
+
    public BaseDigitalOceanLiveTest() {
       provider = "digitalocean";
    }
 
+   protected void initializeImageSizeAndRegion() {
+      defaultSize = sortedSizes().min(api.getSizesApi().list());
+      defaultImage = api.getImageApi().list().get(0);
+      defaultRegion = api.getRegionApi().list().get(0);
+   }
+
+   protected void waitForEvent(Integer eventId) {
+      Predicates2.retry(new Predicate<Integer>() {
+         @Override
+         public boolean apply(Integer input) {
+            Event event = api.getEventApi().get(input);
+            return Event.Status.DONE == event.getStatus();
+         }
+      }, DEFAULT_TIMEOUT_SECONDS, DEFAULT_POLL_SECONDS, TimeUnit.SECONDS).apply(eventId);
+   }
+
+   private static Ordering<Size> sortedSizes() {
+      return new Ordering<Size>() {
+         @Override
+         public int compare(Size left, Size right) {
+            return ComparisonChain.start().compare(left.getCpu(), right.getCpu())
+                  .compare(left.getMemory(), right.getMemory()).compare(left.getDisk(), right.getDisk()).result();
+         }
+      };
+   }
 }

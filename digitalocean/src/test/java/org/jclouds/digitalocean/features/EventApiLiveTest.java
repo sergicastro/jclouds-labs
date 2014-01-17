@@ -16,6 +16,10 @@
  */
 package org.jclouds.digitalocean.features;
 
+import static org.testng.Assert.assertNotNull;
+
+import org.jclouds.digitalocean.domain.DropletCreation;
+import org.jclouds.digitalocean.domain.Event;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
 import org.testng.annotations.Test;
 
@@ -28,17 +32,26 @@ import org.testng.annotations.Test;
 @Test(groups = "live", testName = "EventApiLiveTest")
 public class EventApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   private EventApi eventApi;
-
    @Override
    protected void initialize() {
       super.initialize();
-      eventApi = api.getEventApi();
+      initializeImageSizeAndRegion();
    }
 
    public void testGetEvent() {
-      // TODO: Create droplet, read the event id, get event and delete the
-      // droplet
+      DropletCreation droplet = null;
+
+      try {
+         droplet = api.getDropletApi().create("eventtest", defaultImage.getId(), defaultSize.getId(),
+               defaultRegion.getId());
+         Event event = api.getEventApi().get(droplet.getEventId());
+         assertNotNull(event, "Droplet creation event shouold not be null");
+      } finally {
+         if (droplet != null) {
+            waitForEvent(droplet.getEventId());
+            api.getDropletApi().destroy(droplet.getId(), true);
+         }
+      }
    }
 
 }

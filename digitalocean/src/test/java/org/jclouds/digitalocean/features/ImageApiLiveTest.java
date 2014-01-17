@@ -40,20 +40,10 @@ import com.google.common.base.Predicate;
 @Test(groups = "live", testName = "ImageApiLiveTest")
 public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   private ImageApi imageApi;
-   private RegionApi regionApi;
-
    private Image image;
 
-   @Override
-   protected void initialize() {
-      super.initialize();
-      imageApi = api.getImageApi();
-      regionApi = api.getReRegionApi();
-   }
-
    public void testListImages() {
-      List<Image> images = imageApi.list();
+      List<Image> images = api.getImageApi().list();
 
       assertTrue(images.size() > 0, "Image list should not be empty");
       image = images.get(0);
@@ -61,31 +51,34 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
    @Test(dependsOnMethods = "testListImages")
    public void testGetImage() {
-      assertNotNull(imageApi.get(image.getId()), "The image should not be null");
+      assertNotNull(api.getImageApi().get(image.getId()), "The image should not be null");
    }
 
    public void testGetImageNotFound() {
-      assertNull(imageApi.get(-1));
+      assertNull(api.getImageApi().get(-1));
    }
 
-   @Test(dependsOnMethods = "testListImages")
+   // TODO: Create a droplet, take a snapshot and then test the transfer
+   @Test(enabled = false, dependsOnMethods = "testListImages")
    public void testTransferImage() {
       // Find a different region to be used as the destination
-      Region region = find(regionApi.list(), new Predicate<Region>() {
+      Region region = find(api.getRegionApi().list(), new Predicate<Region>() {
          @Override
          public boolean apply(Region input) {
             return input.getId() != image.getId();
          }
       });
 
-      int eventId = imageApi.transfer(image.getId(), region.getId());
+      int eventId = api.getImageApi().transfer(image.getId(), region.getId());
       assertTrue(eventId > 0);
    }
 
-   @Test(dependsOnMethods = { "testListImages", "testGetImageNotFound", "testGetImage", "testTransferImage" })
+   // TODO: Create a droplet, take a snapshot and then test the delete with it
+   @Test(enabled = false, dependsOnMethods = { "testListImages", "testGetImageNotFound", "testGetImage",
+         "testTransferImage" })
    public void testDeleteImage() throws IOException {
       int imageId = image.getId();
-      imageApi.delete(imageId);
-      assertNull(imageApi.get(imageId));
+      api.getImageApi().delete(imageId);
+      assertNull(api.getImageApi().get(imageId));
    }
 }

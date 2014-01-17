@@ -56,7 +56,7 @@ public interface DigitalOceanApi extends Closeable {
     * Returns the Region management API.
     */
    @Delegate
-   RegionApi getReRegionApi();
+   RegionApi getRegionApi();
 
    /**
     * Returns the SSH key management API.
