@@ -84,16 +84,24 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
       int snapshotEvent = api.getDropletApi().snapshot(droplet.getId(), "imagetransfersnapshot");
       waitForEvent(snapshotEvent);
 
-      snapshot = find(api.getImageApi().list(), new Predicate<Image>() {
-         @Override
-         public boolean apply(Image input) {
-            return input.getName().equals("imagetransfersnapshot");
-         }
-      });
+      snapshot = findByName("imagetransfersnapshot");
 
       Region newRegion = regions.get(1);
       int transferEvent = api.getImageApi().transfer(snapshot.getId(), newRegion.getId());
       assertTrue(transferEvent > 0, "Event id should be > 0");
       waitForEvent(transferEvent);
+
+      // Update the snapshot to the new one after the transfer has happened (the
+      // result will have a different id)
+      snapshot = findByName("imagetransfersnapshot");
+   }
+
+   private Image findByName(final String name) {
+      return find(api.getImageApi().list(), new Predicate<Image>() {
+         @Override
+         public boolean apply(Image input) {
+            return input.getName().equals(name);
+         }
+      });
    }
 }
