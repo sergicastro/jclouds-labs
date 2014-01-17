@@ -71,21 +71,23 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    public void testTransferImage() {
-      droplet = api.getDropletApi().create("droplettest", defaultImage.getId(), defaultSize.getId(),
+      droplet = api.getDropletApi().create("imagetransferdroplet", defaultImage.getId(), defaultSize.getId(),
             defaultRegion.getId());
 
       assertTrue(droplet.getId() > 0, "Created droplet id should be > 0");
       assertTrue(droplet.getEventId() > 0, "Droplet creation event id should be > 0");
 
       waitForEvent(droplet.getEventId());
+      int powerOffEvent = api.getDropletApi().powerOff(droplet.getId());
+      waitForEvent(powerOffEvent);
 
-      int snapshotEvent = api.getDropletApi().snapshot(droplet.getId(), "imagetesttransfer");
+      int snapshotEvent = api.getDropletApi().snapshot(droplet.getId(), "imagetransfersnapshot");
       waitForEvent(snapshotEvent);
 
       snapshot = find(api.getImageApi().list(), new Predicate<Image>() {
          @Override
          public boolean apply(Image input) {
-            return input.getName().equals("imagetesttransfer");
+            return input.getName().equals("imagetransfersnapshot");
          }
       });
 

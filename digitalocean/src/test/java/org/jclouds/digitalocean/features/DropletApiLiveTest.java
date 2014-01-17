@@ -98,20 +98,6 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    @Test(dependsOnMethods = "testPowerCycleDroplet")
-   public void testPowerOfftDroplet() {
-      int event = api.getDropletApi().powerOff(droplet.getId());
-      assertTrue(event > 0, "The event id should not be null");
-      waitForEvent(event);
-   }
-
-   @Test(dependsOnMethods = "testPowerOfftDroplet")
-   public void testPowerOntDroplet() {
-      int event = api.getDropletApi().powerOn(droplet.getId());
-      assertTrue(event > 0, "The event id should not be null");
-      waitForEvent(event);
-   }
-
-   @Test(dependsOnMethods = "testPowerOntDroplet")
    public void testResetPasswordForDroplet() {
       int event = api.getDropletApi().resetPassword(droplet.getId());
       assertTrue(event > 0, "The event id should not be null");
@@ -142,6 +128,13 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
    }
 
    @Test(dependsOnMethods = "testRestoreDroplet")
+   public void testPowerOffDroplet() {
+      int event = api.getDropletApi().powerOff(droplet.getId());
+      assertTrue(event > 0, "The event id should not be null");
+      waitForEvent(event);
+   }
+
+   @Test(dependsOnMethods = "testPowerOffDroplet")
    public void testSnapshotDroplet() {
       int event = api.getDropletApi().snapshot(droplet.getId(), "testsnapshot");
       assertTrue(event > 0, "The event id should not be null");
@@ -162,6 +155,13 @@ public class DropletApiLiveTest extends BaseDigitalOceanLiveTest {
    public void testResizeDroplet() {
       Size newSize = sizes.get(1);
       int event = api.getDropletApi().resize(droplet.getId(), newSize.getId());
+      assertTrue(event > 0, "The event id should not be null");
+      waitForEvent(event);
+   }
+
+   @Test(dependsOnMethods = "testResizeDroplet")
+   public void testPowerOnDroplet() {
+      int event = api.getDropletApi().powerOn(droplet.getId());
       assertTrue(event > 0, "The event id should not be null");
       waitForEvent(event);
    }
