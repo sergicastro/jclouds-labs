@@ -16,6 +16,9 @@
  */
 package org.jclouds.digitalocean.internal;
 
+import static org.testng.Assert.assertTrue;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.jclouds.apis.BaseApiLiveTest;
@@ -41,6 +44,10 @@ public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
    protected static final int DEFAULT_TIMEOUT_SECONDS = 600;
    protected static final int DEFAULT_POLL_SECONDS = 1;
 
+   protected List<Size> sizes;
+   protected List<Image> images;
+   protected List<Region> regions;
+
    protected Size defaultSize;
    protected Image defaultImage;
    protected Region defaultRegion;
@@ -50,9 +57,17 @@ public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
    }
 
    protected void initializeImageSizeAndRegion() {
-      defaultSize = sortedSizes().min(api.getSizesApi().list());
-      defaultImage = api.getImageApi().list().get(0);
-      defaultRegion = api.getRegionApi().list().get(0);
+      sizes = sortedSizes().sortedCopy(api.getSizesApi().list());
+      images = api.getImageApi().list();
+      regions = api.getRegionApi().list();
+
+      assertTrue(sizes.size() > 1, "There must be at least two sizes");
+      assertTrue(images.size() > 0, "Image list should not be empty");
+      assertTrue(regions.size() > 1, "There must be at least two regions");
+
+      defaultSize = sizes.get(0);
+      defaultImage = images.get(0);
+      defaultRegion = regions.get(0);
    }
 
    protected void waitForEvent(Integer eventId) {
@@ -65,7 +80,7 @@ public class BaseDigitalOceanLiveTest extends BaseApiLiveTest<DigitalOceanApi> {
       }, DEFAULT_TIMEOUT_SECONDS, DEFAULT_POLL_SECONDS, TimeUnit.SECONDS).apply(eventId);
    }
 
-   private static Ordering<Size> sortedSizes() {
+   protected static Ordering<Size> sortedSizes() {
       return new Ordering<Size>() {
          @Override
          public int compare(Size left, Size right) {
