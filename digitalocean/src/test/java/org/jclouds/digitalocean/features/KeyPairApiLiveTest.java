@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.jclouds.digitalocean.domain.SshKey;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Charsets;
@@ -40,19 +41,19 @@ import com.google.common.io.Resources;
 @Test(groups = "live", testName = "ImageApiLiveTest")
 public class KeyPairApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   private KeyPairApi keyPairApi;
-
    private SshKey key;
 
-   @Override
-   protected void initialize() {
-      super.initialize();
-      keyPairApi = api.getKeyPairApi();
+   @AfterClass
+   public void cleanup() {
+      if (key != null) {
+         api.getKeyPairApi().delete(key.getId());
+         assertNull(api.getKeyPairApi().get(key.getId()));
+      }
    }
 
    public void testCreateKey() throws IOException {
       String publicKey = Resources.toString(getClass().getResource("/ssh-rsa.txt"), Charsets.UTF_8);
-      key = keyPairApi.create("foo", publicKey);
+      key = api.getKeyPairApi().create("foo", publicKey);
 
       assertNotNull(key);
       assertNotNull(key.getId());
@@ -63,30 +64,23 @@ public class KeyPairApiLiveTest extends BaseDigitalOceanLiveTest {
 
    @Test(dependsOnMethods = "testCreateKey")
    public void testListKeys() {
-      List<SshKey> keys = keyPairApi.list();
+      List<SshKey> keys = api.getKeyPairApi().list();
 
       assertTrue(keys.size() > 0, "SSH key list should not be empty");
    }
 
    @Test(dependsOnMethods = "testCreateKey")
    public void testGetKey() {
-      assertNotNull(keyPairApi.get(key.getId()), "The SSH key should not be null");
+      assertNotNull(api.getKeyPairApi().get(key.getId()), "The SSH key should not be null");
    }
 
    @Test(dependsOnMethods = "testCreateKey")
    public void testEditKey() throws IOException {
       String newKey = Resources.toString(getClass().getResource("/ssh-dsa.txt"), Charsets.UTF_8);
-      SshKey updated = keyPairApi.edit(key.getId(), newKey);
+      SshKey updated = api.getKeyPairApi().edit(key.getId(), newKey);
 
       assertNotNull(updated.getPublicKey());
       assertEquals(updated.getPublicKey().getAlgorithm(), "DSA");
-   }
-
-   @Test(dependsOnMethods = { "testEditKey", "testGetKey", "testListKeys" })
-   public void testDeleteKey() throws IOException {
-      int keyId = key.getId();
-      keyPairApi.delete(keyId);
-      assertNull(keyPairApi.get(keyId));
    }
 
 }

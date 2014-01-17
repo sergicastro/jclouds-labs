@@ -51,13 +51,13 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
    @AfterClass
    public void cleanup() {
       try {
-         if (droplet != null) {
-            api.getDropletApi().destroy(droplet.getId(), true);
-         }
-      } finally {
          if (snapshot != null) {
             api.getImageApi().delete(snapshot.getId());
             assertNull(api.getImageApi().get(snapshot.getId()));
+         }
+      } finally {
+         if (droplet != null) {
+            api.getDropletApi().destroy(droplet.getId(), true);
          }
       }
    }
