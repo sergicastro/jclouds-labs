@@ -16,13 +16,14 @@
  */
 package org.jclouds.digitalocean.compute.functions;
 
+import static org.jclouds.compute.domain.OperatingSystem.builder;
+
 import javax.inject.Singleton;
 
 import org.jclouds.compute.domain.Image.Status;
 import org.jclouds.compute.domain.ImageBuilder;
-import org.jclouds.compute.domain.OperatingSystem;
-import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.domain.enums.OperatingSystem;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
@@ -37,20 +38,22 @@ import com.google.common.collect.ImmutableMap;
 public class ImageToImage implements Function<Image, org.jclouds.compute.domain.Image> {
 
    @Override
-   public org.jclouds.compute.domain.Image apply(Image input) {
+   public org.jclouds.compute.domain.Image apply(final Image input) {
       ImageBuilder builder = new ImageBuilder();
       builder.ids(String.valueOf(input.getId()));
       builder.name(input.getName());
       builder.description(input.getName());
       builder.status(Status.AVAILABLE);
 
-      builder.operatingSystem(OperatingSystem.builder() //
+      OperatingSystem os = input.getOs();
+
+      builder.operatingSystem(builder() //
             .name(input.getName()) //
-            .family(OsFamily.fromValue(input.getDistribution())) //
+            .family(os.getDistribution().getOsFamily()) //
             .description(input.getName()) //
-            .arch("TODO") // TODO: Parse arch from name
-            .version("TODO") // TODO: Parse version from name
-            .is64Bit(false) // TODO: Parse is64bit from name
+            .arch(os.getArch()) //
+            .version(os.getVersion()) //
+            .is64Bit("x64".equals(os.getArch())) //
             .build());
 
       ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();
@@ -59,4 +62,5 @@ public class ImageToImage implements Function<Image, org.jclouds.compute.domain.
 
       return builder.build();
    }
+
 }

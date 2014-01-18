@@ -19,12 +19,14 @@ package org.jclouds.digitalocean.features;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.util.List;
 
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Image;
+import org.jclouds.digitalocean.domain.enums.Distribution;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.rest.ResourceNotFoundException;
@@ -79,19 +81,48 @@ public class ImageApiMockTest extends BaseDigitalOceanMockTest {
 
    public void testGetImage() throws Exception {
       MockWebServer server = mockWebServer();
-      server.enqueue(new MockResponse().setBody(payloadFromResource("/image.json")));
+      String[] imageJsons = new String[] { "/image1.json", "/image2.json", "/image3.json" };
+
+      for (String imageJson : imageJsons) {
+         server.enqueue(new MockResponse().setBody(payloadFromResource(imageJson)));
+      }
 
       DigitalOceanApi api = api(server.getUrl("/"));
       ImageApi imageApi = api.getImageApi();
 
       try {
-         Image image = imageApi.get(2);
+         Image image = imageApi.get(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/images/1");
+         assertNotNull(image);
+         assertEquals(image.getId(), 1);
+         assertEquals(image.getOs().getDistribution(), Distribution.ARCHLINUX);
+         assertEquals(image.getOs().getVersion(), "2013.05");
+         assertEquals(image.getOs().getArch(), "x32");
+         assertEquals(image.getName(), "Arch Linux 2013.05 x32");
+         assertTrue(image.isPublicImage());
+
+         image = imageApi.get(2);
 
          assertRequestHasCommonFields(server.takeRequest(), "/images/2");
          assertNotNull(image);
          assertEquals(image.getId(), 2);
-         assertEquals(image.getDistribution(), "Ubuntu");
-         assertEquals(image.getName(), "Automated Backup");
+         assertEquals(image.getOs().getDistribution(), Distribution.FEDORA);
+         assertEquals(image.getOs().getVersion(), "17");
+         assertEquals(image.getOs().getArch(), "x64");
+         assertEquals(image.getName(), "Fedora 17 x64 Desktop");
+         assertTrue(image.isPublicImage());
+
+         image = imageApi.get(3);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/images/3");
+         assertNotNull(image);
+         assertEquals(image.getId(), 3);
+         assertEquals(image.getOs().getDistribution(), Distribution.UBUNTU);
+         assertEquals(image.getOs().getVersion(), "13.04");
+         assertEquals(image.getOs().getArch(), "");
+         assertEquals(image.getName(), "Dokku on Ubuntu 13.04 0.2.0rc3");
+         assertTrue(image.isPublicImage());
       } finally {
          api.close();
          server.shutdown();

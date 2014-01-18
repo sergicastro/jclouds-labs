@@ -17,9 +17,11 @@
 package org.jclouds.digitalocean.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.jclouds.digitalocean.domain.enums.OperatingSystem.buildOperatingSystem;
 
 import java.beans.ConstructorProperties;
 
+import org.jclouds.digitalocean.domain.enums.OperatingSystem;
 import org.jclouds.javax.annotation.Nullable;
 
 /**
@@ -32,7 +34,7 @@ import org.jclouds.javax.annotation.Nullable;
 public class Image {
    private final int id;
    private final String name;
-   private final String distribution;
+   private final OperatingSystem os;
    private final boolean publicImage;
    private final String slug;
 
@@ -40,7 +42,7 @@ public class Image {
    public Image(int id, String name, String distribution, boolean publicImage, @Nullable String slug) {
       this.id = id;
       this.name = checkNotNull(name, "name");
-      this.distribution = checkNotNull(distribution, "distribution");
+      this.os = buildOperatingSystem(checkNotNull(distribution, "distribution"), name);
       this.publicImage = publicImage;
       this.slug = slug;
    }
@@ -53,8 +55,8 @@ public class Image {
       return name;
    }
 
-   public String getDistribution() {
-      return distribution;
+   public OperatingSystem getOs() {
+      return os;
    }
 
    public boolean isPublicImage() {
@@ -67,18 +69,18 @@ public class Image {
 
    @Override
    public int hashCode() {
-      int prime = 31;
+      final int prime = 31;
       int result = 1;
-      result = prime * result + (distribution == null ? 0 : distribution.hashCode());
       result = prime * result + id;
       result = prime * result + (name == null ? 0 : name.hashCode());
+      result = prime * result + (os == null ? 0 : os.hashCode());
       result = prime * result + (publicImage ? 1231 : 1237);
       result = prime * result + (slug == null ? 0 : slug.hashCode());
       return result;
    }
 
    @Override
-   public boolean equals(Object obj) {
+   public boolean equals(final Object obj) {
       if (this == obj) {
          return true;
       }
@@ -89,13 +91,6 @@ public class Image {
          return false;
       }
       Image other = (Image) obj;
-      if (distribution == null) {
-         if (other.distribution != null) {
-            return false;
-         }
-      } else if (!distribution.equals(other.distribution)) {
-         return false;
-      }
       if (id != other.id) {
          return false;
       }
@@ -104,6 +99,13 @@ public class Image {
             return false;
          }
       } else if (!name.equals(other.name)) {
+         return false;
+      }
+      if (os == null) {
+         if (other.os != null) {
+            return false;
+         }
+      } else if (!os.equals(other.os)) {
          return false;
       }
       if (publicImage != other.publicImage) {
@@ -121,8 +123,8 @@ public class Image {
 
    @Override
    public String toString() {
-      return "Image [id=" + id + ", name=" + name + ", distribution=" + distribution + ", publicImage=" + publicImage
-            + ", slug=" + slug + "]";
+      return "Image [id=" + id + ", name=" + name + ", os=" + os + ", publicImage=" + publicImage + ", slug=" + slug
+            + "]";
    }
 
 }
