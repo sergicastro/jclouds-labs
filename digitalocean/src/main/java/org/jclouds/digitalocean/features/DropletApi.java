@@ -119,7 +119,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/reboot")
    @ResponseParser(ParseEventId.class)
-   int reboot(@QueryParam("id") int id);
+   int reboot(@PathParam("id") int id);
 
    /**
     * Power cycle the given droplet.
@@ -131,7 +131,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/power_cycle")
    @ResponseParser(ParseEventId.class)
-   int powerCycle(@QueryParam("id") int id);
+   int powerCycle(@PathParam("id") int id);
 
    /**
     * Shutdown the given droplet.
@@ -143,7 +143,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/shutdown")
    @ResponseParser(ParseEventId.class)
-   int shutdown(@QueryParam("id") int id);
+   int shutdown(@PathParam("id") int id);
 
    /**
     * Power off the given droplet.
@@ -155,7 +155,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/power_off")
    @ResponseParser(ParseEventId.class)
-   int powerOff(@QueryParam("id") int id);
+   int powerOff(@PathParam("id") int id);
 
    /**
     * Power on the given droplet.
@@ -167,7 +167,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/power_on")
    @ResponseParser(ParseEventId.class)
-   int powerOn(@QueryParam("id") int id);
+   int powerOn(@PathParam("id") int id);
 
    /**
     * Resets the password for the given droplet.
@@ -179,7 +179,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/password_reset")
    @ResponseParser(ParseEventId.class)
-   int resetPassword(@QueryParam("id") int id);
+   int resetPassword(@PathParam("id") int id);
 
    /**
     * Changes the size for the given droplet.
@@ -192,7 +192,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/resize")
    @ResponseParser(ParseEventId.class)
-   int resize(@QueryParam("id") int id, @QueryParam("size_id") int sizeId);
+   int resize(@PathParam("id") int id, @QueryParam("size_id") int sizeId);
 
    /**
     * Take a snapshot of the droplet once it has been powered off.
@@ -204,7 +204,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/snapshot")
    @ResponseParser(ParseEventId.class)
-   int snapshot(@QueryParam("id") int id);
+   int snapshot(@PathParam("id") int id);
 
    /**
     * Take a snapshot of the droplet once it has been powered off.
@@ -217,7 +217,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/snapshot")
    @ResponseParser(ParseEventId.class)
-   int snapshot(@QueryParam("id") int id, @QueryParam("name") String name);
+   int snapshot(@PathParam("id") int id, @QueryParam("name") String name);
 
    /**
     * Restore a droplet with a previous image or snapshot.
@@ -234,7 +234,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/restore")
    @ResponseParser(ParseEventId.class)
-   int restore(@QueryParam("id") int id, @QueryParam("image_id") int imageId);
+   int restore(@PathParam("id") int id, @QueryParam("image_id") int imageId);
 
    /**
     * Rebuild a droplet with a default image.
@@ -251,7 +251,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/rebuild")
    @ResponseParser(ParseEventId.class)
-   int rebuild(@QueryParam("id") int id, @QueryParam("image_id") int imageId);
+   int rebuild(@PathParam("id") int id, @QueryParam("image_id") int imageId);
 
    /**
     * Renames a droplet to the specified name.
@@ -264,7 +264,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/rename")
    @ResponseParser(ParseEventId.class)
-   int rename(@QueryParam("id") int id, @QueryParam("name") String name);
+   int rename(@PathParam("id") int id, @QueryParam("name") String name);
 
    /**
     * Destroy the given droplet.
@@ -276,7 +276,7 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/destroy")
    @ResponseParser(ParseEventId.class)
-   int destroy(@QueryParam("id") int id);
+   int destroy(@PathParam("id") int id);
 
    /**
     * Destroy the given droplet.
@@ -290,5 +290,5 @@ public interface DropletApi extends Closeable {
    @GET
    @Path("/{id}/destroy")
    @ResponseParser(ParseEventId.class)
-   int destroy(@QueryParam("id") int id, @QueryParam("scrub_data") boolean scrubData);
+   int destroy(@PathParam("id") int id, @QueryParam("scrub_data") boolean scrubData);
 }

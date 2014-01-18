@@ -119,7 +119,7 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
 
    @Override
    public Iterable<Region> listLocations() {
-      return api.getReRegionApi().list();
+      return api.getRegionApi().list();
    }
 
    @Override

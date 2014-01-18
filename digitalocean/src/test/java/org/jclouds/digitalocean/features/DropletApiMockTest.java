@@ -19,15 +19,21 @@ package org.jclouds.digitalocean.features;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.List;
 
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Droplet.Status;
+import org.jclouds.digitalocean.domain.DropletCreation;
+import org.jclouds.digitalocean.domain.options.CreateDropletOptions;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
+import org.jclouds.rest.ResourceNotFoundException;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
@@ -92,6 +98,620 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
 
          assertRequestHasCommonFields(server.takeRequest(), "/droplets/100823");
          assertNull(droplet);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testCreateDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/droplet-creation.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         DropletCreation droplet = dropletApi.create("test", 419, 32, 1);
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/new",
+               ImmutableMultimap.of("name", "test", "image_id", "419", "size_id", "32", "region_id", "1"));
+
+         assertNotNull(droplet);
+         assertEquals(droplet.getName(), "test");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testCreateDropletWithOptions() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/droplet-creation.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         CreateDropletOptions options = CreateDropletOptions.builder().addSshKeyId(5).addSshKeyId(4)
+               .privateNetworking(true).backupsEnabled(false).build();
+         DropletCreation droplet = dropletApi.create("test", 419, 32, 1, options);
+
+         ImmutableMultimap.Builder<String, String> params = ImmutableMultimap.builder();
+         params.put("name", "test");
+         params.put("image_id", "419");
+         params.put("size_id", "32");
+         params.put("region_id", "1");
+         params.put("ssh_key_ids", "5,4");
+         params.put("private_networking", "true");
+         params.put("backups_enabled", "false");
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/new", params.build());
+
+         assertNotNull(droplet);
+         assertEquals(droplet.getName(), "test");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRebootDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.reboot(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/reboot");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRebootUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.reboot(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/reboot");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testPowerCycleDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.powerCycle(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/power_cycle");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testPowerCycleUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.powerCycle(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/power_cycle");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testShutdownDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.shutdown(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/shutdown");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testShutdownUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.shutdown(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/shutdown");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testPowerOffDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.powerOff(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/power_off");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testPowerOffUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.powerOff(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/power_off");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testPowerOnDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.powerOn(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/power_on");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testPowerOnUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.powerOn(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/power_on");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testResetPasswordForDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.resetPassword(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/password_reset");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testResetPasswordForUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.resetPassword(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/password_reset");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testResizeDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.resize(1, 3);
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/resize", ImmutableMultimap.of("size_id", "3"));
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testResizeUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.resize(1, 3);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/resize", ImmutableMultimap.of("size_id", "3"));
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testSnapshotDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.snapshot(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/snapshot");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testSnapshotUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.snapshot(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/snapshot");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testSnapshotWithNameDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.snapshot(1, "foo");
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/snapshot", ImmutableMultimap.of("name", "foo"));
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testSnapshotWithNameUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.snapshot(1, "foo");
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/snapshot", ImmutableMultimap.of("name", "foo"));
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRestoreDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.restore(1, 3);
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/restore", ImmutableMultimap.of("image_id", "3"));
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRestoreUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.restore(1, 3);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/restore", ImmutableMultimap.of("image_id", "3"));
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRebuildDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.rebuild(1, 3);
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/rebuild", ImmutableMultimap.of("image_id", "3"));
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRebuildUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.rebuild(1, 3);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/rebuild", ImmutableMultimap.of("image_id", "3"));
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRenameDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.rename(1, "foo");
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/rename", ImmutableMultimap.of("name", "foo"));
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testRenameUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.rename(1, "foo");
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/rename", ImmutableMultimap.of("name", "foo"));
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testDestroyDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.destroy(1);
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/destroy");
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testDestroyUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.destroy(1);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasCommonFields(server.takeRequest(), "/droplets/1/destroy");
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testDestroyWithOptionsDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setBody(payloadFromResource("/eventid.json")));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         int event = dropletApi.destroy(1, true);
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/destroy",
+               ImmutableMultimap.of("scrub_data", "true"));
+         assertTrue(event > 0);
+      } finally {
+         api.close();
+         server.shutdown();
+      }
+   }
+
+   public void testDestroyWithOptionsUnexistingDroplet() throws Exception {
+      MockWebServer server = mockWebServer();
+      server.enqueue(new MockResponse().setResponseCode(404));
+
+      DigitalOceanApi api = api(server.getUrl("/"));
+      DropletApi dropletApi = api.getDropletApi();
+
+      try {
+         try {
+            dropletApi.destroy(1, true);
+            fail("Transfer image should fail on 404");
+         } catch (ResourceNotFoundException ex) {
+            // Expected exception
+         }
+
+         assertRequestHasParameters(server.takeRequest(), "/droplets/1/destroy",
+               ImmutableMultimap.of("scrub_data", "true"));
       } finally {
          api.close();
          server.shutdown();

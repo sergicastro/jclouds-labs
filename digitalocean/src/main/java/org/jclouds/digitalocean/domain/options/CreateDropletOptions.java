@@ -16,13 +16,11 @@
  */
 package org.jclouds.digitalocean.domain.options;
 
-import static com.google.common.base.Functions.toStringFunction;
-import static com.google.common.collect.Iterables.transform;
-
 import java.util.Set;
 
 import org.jclouds.http.options.BaseHttpRequestOptions;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -43,7 +41,7 @@ public class CreateDropletOptions extends BaseHttpRequestOptions {
       this.backupsEnabled = backupsEnabled;
 
       if (!sshKeyIds.isEmpty()) {
-         queryParameters.putAll("ssh_key_ids", transform(sshKeyIds, toStringFunction()));
+         queryParameters.put("ssh_key_ids", Joiner.on(',').join(sshKeyIds));
       }
       if (privateNetworking != null) {
          queryParameters.put("private_networking", privateNetworking.toString());

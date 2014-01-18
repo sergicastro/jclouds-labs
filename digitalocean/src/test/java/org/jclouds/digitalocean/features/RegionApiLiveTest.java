@@ -38,7 +38,7 @@ public class RegionApiLiveTest extends BaseDigitalOceanLiveTest {
    @Override
    protected void initialize() {
       super.initialize();
-      regionApi = api.getReRegionApi();
+      regionApi = api.getRegionApi();
    }
 
    public void testListRegions() {

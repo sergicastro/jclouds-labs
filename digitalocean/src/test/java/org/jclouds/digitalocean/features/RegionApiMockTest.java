@@ -42,7 +42,7 @@ public class RegionApiMockTest extends BaseDigitalOceanMockTest {
       server.enqueue(new MockResponse().setBody(payloadFromResource("/regions.json")));
 
       DigitalOceanApi api = api(server.getUrl("/"));
-      RegionApi regionApi = api.getReRegionApi();
+      RegionApi regionApi = api.getRegionApi();
 
       try {
          List<Region> regions = regionApi.list();

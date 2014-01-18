@@ -21,12 +21,11 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import java.io.IOException;
-import java.util.List;
-
+import org.jclouds.digitalocean.domain.DropletCreation;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanLiveTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
@@ -40,52 +39,69 @@ import com.google.common.base.Predicate;
 @Test(groups = "live", testName = "ImageApiLiveTest")
 public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
-   private ImageApi imageApi;
-   private RegionApi regionApi;
-
-   private Image image;
+   private Image snapshot;
+   private DropletCreation droplet;
 
    @Override
    protected void initialize() {
       super.initialize();
-      imageApi = api.getImageApi();
-      regionApi = api.getReRegionApi();
+      initializeImageSizeAndRegion();
    }
 
-   public void testListImages() {
-      List<Image> images = imageApi.list();
-
-      assertTrue(images.size() > 0, "Image list should not be empty");
-      image = images.get(0);
+   @AfterClass
+   public void cleanup() {
+      try {
+         if (snapshot != null) {
+            api.getImageApi().delete(snapshot.getId());
+            assertNull(api.getImageApi().get(snapshot.getId()));
+         }
+      } finally {
+         if (droplet != null) {
+            api.getDropletApi().destroy(droplet.getId(), true);
+         }
+      }
    }
 
-   @Test(dependsOnMethods = "testListImages")
    public void testGetImage() {
-      assertNotNull(imageApi.get(image.getId()), "The image should not be null");
+      assertNotNull(api.getImageApi().get(defaultImage.getId()), "The image should not be null");
    }
 
    public void testGetImageNotFound() {
-      assertNull(imageApi.get(-1));
+      assertNull(api.getImageApi().get(-1));
    }
 
-   @Test(dependsOnMethods = "testListImages")
    public void testTransferImage() {
-      // Find a different region to be used as the destination
-      Region region = find(regionApi.list(), new Predicate<Region>() {
+      droplet = api.getDropletApi().create("imagetransferdroplet", defaultImage.getId(), defaultSize.getId(),
+            defaultRegion.getId());
+
+      assertTrue(droplet.getId() > 0, "Created droplet id should be > 0");
+      assertTrue(droplet.getEventId() > 0, "Droplet creation event id should be > 0");
+
+      waitForEvent(droplet.getEventId());
+      int powerOffEvent = api.getDropletApi().powerOff(droplet.getId());
+      waitForEvent(powerOffEvent);
+
+      int snapshotEvent = api.getDropletApi().snapshot(droplet.getId(), "imagetransfersnapshot");
+      waitForEvent(snapshotEvent);
+
+      snapshot = findByName("imagetransfersnapshot");
+
+      Region newRegion = regions.get(1);
+      int transferEvent = api.getImageApi().transfer(snapshot.getId(), newRegion.getId());
+      assertTrue(transferEvent > 0, "Event id should be > 0");
+      waitForEvent(transferEvent);
+
+      // Update the snapshot to the new one after the transfer has happened (the
+      // result will have a different id)
+      snapshot = findByName("imagetransfersnapshot");
+   }
+
+   private Image findByName(final String name) {
+      return find(api.getImageApi().list(), new Predicate<Image>() {
          @Override
-         public boolean apply(Region input) {
-            return input.getId() != image.getId();
+         public boolean apply(Image input) {
+            return input.getName().equals(name);
          }
       });
-
-      int eventId = imageApi.transfer(image.getId(), region.getId());
-      assertTrue(eventId > 0);
-   }
-
-   @Test(dependsOnMethods = { "testListImages", "testGetImageNotFound", "testGetImage", "testTransferImage" })
-   public void testDeleteImage() throws IOException {
-      int imageId = image.getId();
-      imageApi.delete(imageId);
-      assertNull(imageApi.get(imageId));
    }
 }
