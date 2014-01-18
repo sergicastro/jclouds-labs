@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 import org.jclouds.compute.domain.Image.Status;
 import org.jclouds.compute.domain.ImageBuilder;
 import org.jclouds.digitalocean.domain.Image;
-import org.jclouds.digitalocean.domain.enums.OperatingSystem;
+import org.jclouds.digitalocean.domain.OperatingSystem;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
@@ -53,7 +53,7 @@ public class ImageToImage implements Function<Image, org.jclouds.compute.domain.
             .description(input.getName()) //
             .arch(os.getArch()) //
             .version(os.getVersion()) //
-            .is64Bit("x64".equals(os.getArch())) //
+            .is64Bit(os.is64bit()) //
             .build());
 
       ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();

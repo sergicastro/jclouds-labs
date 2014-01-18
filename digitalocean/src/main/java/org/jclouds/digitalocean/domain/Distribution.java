@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean.domain.enums;
+package org.jclouds.digitalocean.domain;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.tryFind;
 import static java.util.Arrays.asList;
 
@@ -23,6 +24,12 @@ import org.jclouds.compute.domain.OsFamily;
 
 import com.google.common.base.Predicate;
 
+/**
+ * DigitalOcean image distributions.
+ * 
+ * @author Sergi Castro
+ * @author Ignasi Barrera
+ */
 public enum Distribution {
    ARCHLINUX(OsFamily.ARCH, "Arch Linux"), //
    CENTOS(OsFamily.CENTOS, "Centos"), //
@@ -34,23 +41,23 @@ public enum Distribution {
    private final OsFamily osFamily;
    private final String value;
 
-   private Distribution(final OsFamily osFamily, final String value) {
-      this.osFamily = osFamily;
-      this.value = value;
+   private Distribution(OsFamily osFamily, String value) {
+      this.osFamily = checkNotNull(osFamily, "osFamily cannot be null");
+      this.value = checkNotNull(value, "value cannot be null");
    }
 
    public OsFamily getOsFamily() {
       return this.osFamily;
    }
 
-   public static Distribution fromValue(final String value) {
+   public static Distribution fromValue(String value) {
       return tryFind(asList(Distribution.values()), hasValue(value)).or(UNRECOGNIZED);
    }
 
    private static Predicate<Distribution> hasValue(final String value) {
       return new Predicate<Distribution>() {
          @Override
-         public boolean apply(final Distribution input) {
+         public boolean apply(Distribution input) {
             return input.value.equals(value);
          }
       };

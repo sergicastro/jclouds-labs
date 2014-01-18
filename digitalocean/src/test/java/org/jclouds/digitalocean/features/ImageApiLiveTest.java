@@ -17,6 +17,8 @@
 package org.jclouds.digitalocean.features;
 
 import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.tryFind;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -51,13 +53,14 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
    @AfterClass
    public void cleanup() {
       try {
-         if (snapshot != null) {
-            api.getImageApi().delete(snapshot.getId());
-            assertNull(api.getImageApi().get(snapshot.getId()));
-         }
-      } finally {
          if (droplet != null) {
             api.getDropletApi().destroy(droplet.getId(), true);
+         }
+      } finally {
+         if (snapshot != null) {
+            api.getImageApi().delete(snapshot.getId());
+            assertFalse(tryFind(api.getImageApi().list(), byName(snapshot.getName())).isPresent(),
+                  "Snapshot should not exist after delete");
          }
       }
    }
@@ -84,24 +87,20 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
       int snapshotEvent = api.getDropletApi().snapshot(droplet.getId(), "imagetransfersnapshot");
       waitForEvent(snapshotEvent);
 
-      snapshot = findByName("imagetransfersnapshot");
+      snapshot = find(api.getImageApi().list(), byName("imagetransfersnapshot"));
 
       Region newRegion = regions.get(1);
       int transferEvent = api.getImageApi().transfer(snapshot.getId(), newRegion.getId());
       assertTrue(transferEvent > 0, "Event id should be > 0");
       waitForEvent(transferEvent);
-
-      // Update the snapshot to the new one after the transfer has happened (the
-      // result will have a different id)
-      snapshot = findByName("imagetransfersnapshot");
    }
 
-   private Image findByName(final String name) {
-      return find(api.getImageApi().list(), new Predicate<Image>() {
+   private static Predicate<Image> byName(final String name) {
+      return new Predicate<Image>() {
          @Override
          public boolean apply(Image input) {
             return input.getName().equals(name);
          }
-      });
+      };
    }
 }

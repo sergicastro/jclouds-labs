@@ -17,11 +17,9 @@
 package org.jclouds.digitalocean.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.jclouds.digitalocean.domain.enums.OperatingSystem.buildOperatingSystem;
 
 import java.beans.ConstructorProperties;
 
-import org.jclouds.digitalocean.domain.enums.OperatingSystem;
 import org.jclouds.javax.annotation.Nullable;
 
 /**
@@ -42,7 +40,7 @@ public class Image {
    public Image(int id, String name, String distribution, boolean publicImage, @Nullable String slug) {
       this.id = id;
       this.name = checkNotNull(name, "name");
-      this.os = buildOperatingSystem(checkNotNull(distribution, "distribution"), name);
+      this.os = OperatingSystem.builder().from(name, checkNotNull(distribution, "distribution")).build();
       this.publicImage = publicImage;
       this.slug = slug;
    }
@@ -80,7 +78,7 @@ public class Image {
    }
 
    @Override
-   public boolean equals(final Object obj) {
+   public boolean equals(Object obj) {
       if (this == obj) {
          return true;
       }

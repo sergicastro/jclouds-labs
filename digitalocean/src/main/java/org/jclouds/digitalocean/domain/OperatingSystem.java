@@ -14,23 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.digitalocean.domain.enums;
+package org.jclouds.digitalocean.domain;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.regex.Pattern.compile;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The operating system of an image.
+ * <p>
+ * This class parses the <code>name</code> string (e.g. ""Ubuntu 12.10 x64"") of
+ * the images and properly sets each field to the right value.
+ * 
+ * @author Sergi Castro
+ * @author Ignasi Barrera
+ */
 public class OperatingSystem {
+
+   // Parse something like "Ubuntu 12.10 x64"
+   private static final Pattern VERSION_PATTERN = compile("\\s(\\d+(?:\\.?\\d+)?)");
+   private static final Pattern ARCH_PATTERN = compile("x\\d{2}");
+
    private final Distribution distribution;
    private final String version;
    private final String arch;
 
-   private OperatingSystem(final String distribution, final String version, final String arch) {
-      this.distribution = Distribution.fromValue(distribution);
-      this.version = version;
-      this.arch = arch;
+   private OperatingSystem(String distribution, String version, String arch) {
+      this.distribution = checkNotNull(Distribution.fromValue(distribution), "distribution cannot be null");
+      this.version = checkNotNull(version, "version cannot be null");
+      this.arch = checkNotNull(arch, "arch cannot be null");
    }
 
    public Distribution getDistribution() {
@@ -45,17 +60,32 @@ public class OperatingSystem {
       return arch;
    }
 
-   // "Ubuntu 12.10 x64"
-   private static final Pattern VERSION_PATTERN = compile("\\d+(\\.?\\d+)?");
-   private static final Pattern ARCH_PATTERN = compile("x\\d{2}");
-
-   public static OperatingSystem buildOperatingSystem(final String distribution, final String input) {
-      return new OperatingSystem(distribution, match(VERSION_PATTERN, input), match(ARCH_PATTERN, input));
+   public boolean is64bit() {
+      return "x64".equals(arch);
    }
 
-   private static String match(final Pattern pattern, final String input) {
+   public static Builder builder() {
+      return new Builder();
+   }
+
+   public static class Builder {
+      private String name;
+      private String distribution;
+
+      public Builder from(String name, String distribution) {
+         this.name = checkNotNull(name, "name cannot be null");
+         this.distribution = checkNotNull(distribution, "distribution cannot be null");
+         return this;
+      }
+
+      public OperatingSystem build() {
+         return new OperatingSystem(distribution, match(VERSION_PATTERN, name, 1), match(ARCH_PATTERN, name, 0));
+      }
+   }
+
+   private static String match(final Pattern pattern, final String input, int group) {
       Matcher m = pattern.matcher(input);
-      return m.find() ? nullToEmpty(m.group(0)) : "";
+      return m.find() ? nullToEmpty(m.group(group)) : "";
    }
 
    @Override

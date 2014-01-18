@@ -25,8 +25,8 @@ import static org.testng.Assert.fail;
 import java.util.List;
 
 import org.jclouds.digitalocean.DigitalOceanApi;
+import org.jclouds.digitalocean.domain.Distribution;
 import org.jclouds.digitalocean.domain.Image;
-import org.jclouds.digitalocean.domain.enums.Distribution;
 import org.jclouds.digitalocean.internal.BaseDigitalOceanMockTest;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.rest.ResourceNotFoundException;
