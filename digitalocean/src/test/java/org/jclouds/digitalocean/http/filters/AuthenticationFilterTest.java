@@ -45,7 +45,7 @@ public class AuthenticationFilterTest {
    }
 
    public void testFilterWithCredentials() {
-      HttpRequest request = HttpRequest.builder().method("GET").endpoint("htto://localhost/foo").build();
+      HttpRequest request = HttpRequest.builder().method("GET").endpoint("http://localhost/foo").build();
       Credentials credentials = LoginCredentials.builder().identity("foo").credential("bar").build();
       AuthenticationFilter filter = new AuthenticationFilter(Suppliers.ofInstance(credentials));
 

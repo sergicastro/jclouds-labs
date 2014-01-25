@@ -107,7 +107,7 @@ public class DropletToNodeMetadata implements Function<Droplet, NodeMetadata> {
       // DigitalOcean does not provide a way to get the credentials.
       // Try to return them from the credential store
       Credentials credentials = credentialStore.get("node#" + input.getId());
-      if (credentials != null && credentials instanceof LoginCredentials) {
+      if (credentials instanceof LoginCredentials) {
          builder.credentials(LoginCredentials.class.cast(credentials));
       }
 

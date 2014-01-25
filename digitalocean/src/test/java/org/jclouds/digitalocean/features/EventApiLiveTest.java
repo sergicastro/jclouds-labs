@@ -17,6 +17,7 @@
 package org.jclouds.digitalocean.features;
 
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import org.jclouds.digitalocean.domain.DropletCreation;
 import org.jclouds.digitalocean.domain.Event;
@@ -45,7 +46,8 @@ public class EventApiLiveTest extends BaseDigitalOceanLiveTest {
          droplet = api.getDropletApi().create("eventtest", defaultImage.getId(), defaultSize.getId(),
                defaultRegion.getId());
          Event event = api.getEventApi().get(droplet.getEventId());
-         assertNotNull(event, "Droplet creation event shouold not be null");
+         assertNotNull(event, "Droplet creation event should not be null");
+         assertTrue(event.getId() > 0, "Event id should be > 0");
       } finally {
          if (droplet != null) {
             waitForEvent(droplet.getEventId());

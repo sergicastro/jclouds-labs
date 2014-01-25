@@ -24,6 +24,7 @@ import java.beans.ConstructorProperties;
 import org.jclouds.javax.annotation.Nullable;
 
 import com.google.common.base.Enums;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.inject.name.Named;
 
@@ -40,7 +41,7 @@ public class BaseResponse {
 
       public static Status fromValue(String value) {
          Optional<Status> status = Enums.getIfPresent(Status.class, value.toUpperCase());
-         checkArgument(status.isPresent(), "%s is not a valid value", value);
+         checkArgument(status.isPresent(), "Expected one of %s but was %s", Joiner.on(',').join(Status.values()), value);
          return status.get();
       }
    }

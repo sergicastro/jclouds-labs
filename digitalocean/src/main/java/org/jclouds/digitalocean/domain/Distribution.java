@@ -20,6 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.tryFind;
 import static java.util.Arrays.asList;
 
+import java.util.List;
+
 import org.jclouds.compute.domain.OsFamily;
 
 import com.google.common.base.Predicate;
@@ -38,6 +40,8 @@ public enum Distribution {
    UBUNTU(OsFamily.UBUNTU, "Ubuntu"), //
    UNRECOGNIZED(OsFamily.UNRECOGNIZED, ""); //
 
+   private static final List<Distribution> values = asList(Distribution.values());
+
    private final OsFamily osFamily;
    private final String value;
 
@@ -51,7 +55,7 @@ public enum Distribution {
    }
 
    public static Distribution fromValue(String value) {
-      return tryFind(asList(Distribution.values()), hasValue(value)).or(UNRECOGNIZED);
+      return tryFind(values, hasValue(value)).or(UNRECOGNIZED);
    }
 
    private static Predicate<Distribution> hasValue(final String value) {

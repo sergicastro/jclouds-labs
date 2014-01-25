@@ -91,7 +91,7 @@ public class ImageApiLiveTest extends BaseDigitalOceanLiveTest {
 
       Region newRegion = regions.get(1);
       int transferEvent = api.getImageApi().transfer(snapshot.getId(), newRegion.getId());
-      assertTrue(transferEvent > 0, "Event id should be > 0");
+      assertTrue(transferEvent > 0, "Transfer event id should be > 0");
       waitForEvent(transferEvent);
    }
 

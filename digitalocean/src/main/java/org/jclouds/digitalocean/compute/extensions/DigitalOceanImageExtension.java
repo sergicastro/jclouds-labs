@@ -18,7 +18,7 @@ package org.jclouds.digitalocean.compute.extensions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.tryFind;
+import static com.google.common.collect.Iterables.find;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_IMAGE_AVAILABLE;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_SUSPENDED;
@@ -41,7 +41,6 @@ import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.logging.Logger;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -77,12 +76,7 @@ public class DigitalOceanImageExtension implements ImageExtension {
 
    @Override
    public ImageTemplate buildImageTemplateFromNode(String name, String id) {
-      Droplet droplet = null;
-      try {
-         droplet = api.getDropletApi().get(Integer.valueOf(id));
-      } catch (Exception ex) {
-         throw new NoSuchElementException("Cannot find droplet with id: " + id);
-      }
+      Droplet droplet = api.getDropletApi().get(Integer.valueOf(id));
 
       if (droplet == null) {
          throw new NoSuchElementException("Cannot find droplet with id: " + id);
@@ -93,7 +87,7 @@ public class DigitalOceanImageExtension implements ImageExtension {
 
    @Override
    public ListenableFuture<Image> createImage(ImageTemplate template) {
-      checkState(template instanceof CloneImageTemplate, " digitalocean only supports creating images through cloning.");
+      checkState(template instanceof CloneImageTemplate, "DigitalOcean only supports creating images through cloning.");
       final CloneImageTemplate cloneTemplate = (CloneImageTemplate) template;
 
       // Droplet needs to be stopped
@@ -105,11 +99,10 @@ public class DigitalOceanImageExtension implements ImageExtension {
 
       logger.info(">> registered new Image, waiting for it to become available");
 
-      // Until the process completes we don't have enough information to build
-      // an image to return
+      // Until the process completes we don't have enough information to build an image to return
       imageAvailablePredicate.apply(snapshotEvent);
 
-      Optional<org.jclouds.digitalocean.domain.Image> snapshot = tryFind(api.getImageApi().list(),
+      org.jclouds.digitalocean.domain.Image snapshot = find(api.getImageApi().list(),
             new Predicate<org.jclouds.digitalocean.domain.Image>() {
                @Override
                public boolean apply(org.jclouds.digitalocean.domain.Image input) {
@@ -117,11 +110,7 @@ public class DigitalOceanImageExtension implements ImageExtension {
                }
             });
 
-      if (!snapshot.isPresent()) {
-         throw new NoSuchElementException("Cannot find image with name: " + cloneTemplate.getName());
-      }
-
-      return immediateFuture(imageTransformer.apply(snapshot.get()));
+      return immediateFuture(imageTransformer.apply(snapshot));
    }
 
    @Override

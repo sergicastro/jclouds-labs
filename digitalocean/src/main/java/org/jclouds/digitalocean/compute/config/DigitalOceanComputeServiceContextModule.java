@@ -16,9 +16,7 @@
  */
 package org.jclouds.digitalocean.compute.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.any;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_IMAGE_AVAILABLE;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_RUNNING;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_SUSPENDED;
@@ -176,15 +174,15 @@ public class DigitalOceanComputeServiceContextModule extends
    }
 
    public static class DefaultImageCredetials {
-      private final SshKey key;
+      private final Optional<SshKey> key;
       private final LoginCredentials credentials;
 
-      public DefaultImageCredetials(SshKey key, LoginCredentials credentials) {
+      public DefaultImageCredetials(Optional<SshKey> key, LoginCredentials credentials) {
          this.key = checkNotNull(key, "key cannot be null");
          this.credentials = checkNotNull(credentials, "credentials cannot be null");
       }
 
-      public SshKey getKey() {
+      public Optional<SshKey> getKey() {
          return key;
       }
 
@@ -204,30 +202,35 @@ public class DigitalOceanComputeServiceContextModule extends
          @Override
          public DefaultImageCredetials get() {
             Map<String, String> keyPair = rsaSshKeyPairGenerator.get();
-
-            SshKey key = null;
-            int maxTries = 100;
-            int currentTries = 0;
             List<SshKey> keys = api.getKeyPairApi().list();
+            SshKey key = null;
 
-            while (currentTries < maxTries) {
-               final String name = namingConvention.create().uniqueNameForGroup("credentials");
-               if (!any(keys, new Predicate<SshKey>() {
-                  @Override
-                  public boolean apply(SshKey input) {
-                     return name.equals(input.getName());
+            // Try to find an unused name and create a new keypair
+            for (int i = 0; i < 100 && key == null; i++) {
+               String name = namingConvention.create().uniqueNameForGroup("credentials");
+               boolean keyExists = false;
+
+               for (SshKey k : keys) {
+                  if (name.equals(k.getName())) {
+                     keyExists = true;
+                     break;
                   }
+               }
 
-               })) {
+               if (!keyExists) {
                   key = api.getKeyPairApi().create(name, keyPair.get("public"));
-                  break;
                }
             }
 
-            checkArgument(key != null, "Could not generate a name for the credentials key pair");
+            // If the keypair could not be created, the default credentials will only populate the username as the
+            // DigitalOcean provider will email the password to the user.
+            LoginCredentials.Builder builder = LoginCredentials.builder();
+            builder.user("root");
+            if (key != null) {
+               builder.privateKey(keyPair.get("private"));
+            }
 
-            return new DefaultImageCredetials(key, LoginCredentials.builder().user("root")
-                  .privateKey(keyPair.get("private")).build());
+            return new DefaultImageCredetials(Optional.fromNullable(key), builder.build());
          }
       });
    }

@@ -17,6 +17,8 @@
 package org.jclouds.digitalocean.http;
 
 import static org.jclouds.Constants.PROPERTY_MAX_RETRIES;
+import static org.jclouds.digitalocean.http.ResponseStatusFromPayloadHttpCommandExecutorService.ACCESS_DENIED;
+import static org.jclouds.digitalocean.http.ResponseStatusFromPayloadHttpCommandExecutorService.NOT_FOUND;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -35,8 +37,7 @@ import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
 /**
- * Mock tests for the
- * {@link ResponseStatusFromPayloadHttpCommandExecutorService} class.
+ * Mock tests for the {@link ResponseStatusFromPayloadHttpCommandExecutorService} class.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
@@ -63,7 +64,7 @@ public class ResponseStatusFromPayloadHttpCommandExecutorServiceTest extends Bas
          fail("Request should have failed");
       } catch (Exception ex) {
          assertTrue(ex instanceof AuthorizationException, "Exception should be an AuthorizationException");
-         assertEquals(ex.getMessage(), "Access Denied");
+         assertEquals(ex.getMessage(), ACCESS_DENIED);
       } finally {
          api.close();
          server.shutdown();
@@ -82,7 +83,7 @@ public class ResponseStatusFromPayloadHttpCommandExecutorServiceTest extends Bas
          fail("Request should have failed");
       } catch (Exception ex) {
          assertTrue(ex instanceof ResourceNotFoundException, "Exception should be a ResourceNotFoundException");
-         assertEquals(ex.getMessage(), "Not Found");
+         assertEquals(ex.getMessage(), NOT_FOUND);
       } finally {
          api.close();
          server.shutdown();

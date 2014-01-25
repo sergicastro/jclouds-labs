@@ -16,7 +16,7 @@
  */
 package org.jclouds.digitalocean.features;
 
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
 
 import java.util.List;
 
@@ -44,6 +44,6 @@ public class RegionApiLiveTest extends BaseDigitalOceanLiveTest {
    public void testListRegions() {
       List<Region> regions = regionApi.list();
 
-      assertTrue(regions.size() > 0, "Region list should not be empty");
+      assertFalse(regions.isEmpty(), "Region list should not be empty");
    }
 }

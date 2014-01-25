@@ -38,8 +38,7 @@ public class DigitalOceanTemplateOptions extends TemplateOptions implements Clon
    private Boolean backupsEnabled;
 
    /**
-    * Enables a private network interface if the region supports private
-    * networking.
+    * Enables a private network interface if the region supports private networking.
     */
    public DigitalOceanTemplateOptions privateNetworking(boolean privateNetworking) {
       this.privateNetworking = privateNetworking;
@@ -144,13 +143,9 @@ public class DigitalOceanTemplateOptions extends TemplateOptions implements Clon
 
    @Override
    public ToStringHelper string() {
-      ToStringHelper toString = super.string();
-      if (privateNetworking != null) {
-         toString.add("privateNetworking", privateNetworking);
-      }
-      if (backupsEnabled != null) {
-         toString.add("backupsEnabled", backupsEnabled);
-      }
+      ToStringHelper toString = super.string().omitNullValues();
+      toString.add("privateNetworking", privateNetworking);
+      toString.add("backupsEnabled", backupsEnabled);
       if (!sshKeyIds.isEmpty()) {
          toString.add("sshKeyIds", sshKeyIds);
       }

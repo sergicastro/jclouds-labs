@@ -62,8 +62,7 @@ public interface DropletApi extends Closeable {
     * Gets the details of the given droplet.
     * 
     * @param id The id of the droplet to get.
-    * @return The details of the droplet or <code>null</code> if no droplet
-    *         exists with the given id.
+    * @return The details of the droplet or <code>null</code> if no droplet exists with the given id.
     */
    @Named("droplet:get")
    @GET
@@ -106,7 +105,7 @@ public interface DropletApi extends Closeable {
          @QueryParam("size_id") int sizeId, @QueryParam("region_id") int regionId, CreateDropletOptions options);
 
    /**
-    * Reboot the given droplet.
+    * Reboots the given droplet.
     * 
     * @param id The id of the droplet to reboot.
     * @return The id of the event to track the reboot process.
@@ -118,7 +117,7 @@ public interface DropletApi extends Closeable {
    int reboot(@PathParam("id") int id);
 
    /**
-    * Power cycle the given droplet.
+    * Power cycles the given droplet.
     * 
     * @param id The id of the droplet to power cycle.
     * @return The id of the event to track the power cycle process.
@@ -130,7 +129,7 @@ public interface DropletApi extends Closeable {
    int powerCycle(@PathParam("id") int id);
 
    /**
-    * Shutdown the given droplet.
+    * Shuts down the given droplet.
     * 
     * @param id The id of the droplet to shutdown.
     * @return The id of the event to track the shutdown process.
@@ -142,7 +141,7 @@ public interface DropletApi extends Closeable {
    int shutdown(@PathParam("id") int id);
 
    /**
-    * Power off the given droplet.
+    * Powers off the given droplet.
     * 
     * @param id The id of the droplet to power off.
     * @return The id of the event to track the power off process.
@@ -154,7 +153,7 @@ public interface DropletApi extends Closeable {
    int powerOff(@PathParam("id") int id);
 
    /**
-    * Power on the given droplet.
+    * Powers on the given droplet.
     * 
     * @param id The id of the droplet to power on.
     * @return The id of the event to track the power on process.
@@ -191,7 +190,7 @@ public interface DropletApi extends Closeable {
    int resize(@PathParam("id") int id, @QueryParam("size_id") int sizeId);
 
    /**
-    * Take a snapshot of the droplet once it has been powered off.
+    * Takes a snapshot of the droplet once it has been powered off.
     * 
     * @param id The id of the droplet to take the snapshot of.
     * @return The id of the event to track the snapshot process.
@@ -203,7 +202,7 @@ public interface DropletApi extends Closeable {
    int snapshot(@PathParam("id") int id);
 
    /**
-    * Take a snapshot of the droplet once it has been powered off.
+    * Takes a snapshot of the droplet once it has been powered off.
     * 
     * @param id The id of the droplet to take the snapshot of.
     * @param name The name for the snapshot.
@@ -216,14 +215,13 @@ public interface DropletApi extends Closeable {
    int snapshot(@PathParam("id") int id, @QueryParam("name") String name);
 
    /**
-    * Restore a droplet with a previous image or snapshot.
+    * Restores a droplet with a previous image or snapshot.
     * <p>
-    * This will be a mirror copy of the image or snapshot to your droplet. Be
-    * sure you have backed up any necessary information prior to restore.
+    * This will be a mirror copy of the image or snapshot to your droplet. Be sure you have backed up any necessary
+    * information prior to restore.
     * 
     * @param id The id of the droplet to restore.
-    * @param imageId The id of the image or snapshot to use to restore the
-    *           droplet.
+    * @param imageId The id of the image or snapshot to use to restore the droplet.
     * @return The id of the event to track the restore process.
     */
    @Named("droplet:restore")
@@ -233,14 +231,12 @@ public interface DropletApi extends Closeable {
    int restore(@PathParam("id") int id, @QueryParam("image_id") int imageId);
 
    /**
-    * Rebuild a droplet with a default image.
+    * Rebuilds a droplet with a default image.
     * <p>
-    * This is useful if you want to start again but retain the same IP address
-    * for your droplet.
+    * This is useful if you want to start again but retain the same IP address for your droplet.
     * 
     * @param id The id of the droplet to rebuild.
-    * @param imageId The id of the image or snapshot to use to restore the
-    *           droplet.
+    * @param imageId The id of the image or snapshot to use to restore the droplet.
     * @return The id of the event to track the restore process.
     */
    @Named("droplet:rebuild")
@@ -263,7 +259,7 @@ public interface DropletApi extends Closeable {
    int rename(@PathParam("id") int id, @QueryParam("name") String name);
 
    /**
-    * Destroy the given droplet.
+    * Destroys the given droplet.
     * 
     * @param id The id of the droplet to destroy.
     * @return The id of the event to track the destroy process.
@@ -275,11 +271,11 @@ public interface DropletApi extends Closeable {
    int destroy(@PathParam("id") int id);
 
    /**
-    * Destroy the given droplet.
+    * Destroys the given droplet.
     * 
     * @param id The id of the droplet to destroy.
-    * @param scrubData If true this will strictly write 0s to your prior
-    *           partition to ensure that all data is completely erased.
+    * @param scrubData If true this will strictly write 0s to your prior partition to ensure that all data is completely
+    *        erased.
     * @return The id of the event to track the destroy process.
     */
    @Named("droplet:destroy")

@@ -53,15 +53,12 @@ import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
- * Custom implementation of the HTTP driver to read the response body in order
- * to get the real response status.
+ * Custom implementation of the HTTP driver to read the response body in order to get the real response status.
  * <p>
- * The DigitalOcean API always return 200 codes even if a request failed due to
- * some internal error, but populates an <code>ERROR</code> string in the
- * response payload.
+ * The DigitalOcean API always return 200 codes even if a request failed due to some internal error, but populates an
+ * <code>ERROR</code> string in the response payload.
  * <p>
- * This class will read the body of the response and populate a 500 statuc code
- * if an error is found.
+ * This class will read the body of the response and populate a 500 status code if an error is found.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
@@ -69,8 +66,8 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 @Singleton
 public class ResponseStatusFromPayloadHttpCommandExecutorService extends JavaUrlHttpCommandExecutorService {
 
-   private static final String ACCESS_DENIED = "Access Denied";
-   private static final String NOT_FOUND = "Not Found";
+   public static final String ACCESS_DENIED = "Access Denied";
+   public static final String NOT_FOUND = "Not Found";
 
    private final ParseJson<BaseResponse> errorParser;
 
@@ -92,10 +89,8 @@ public class ResponseStatusFromPayloadHttpCommandExecutorService extends JavaUrl
       HttpResponse.Builder<?> response = original.toBuilder();
 
       if (hasPayload(original)) {
-         // As we need to read the response body to determine if there are
-         // errors, but we may need to process the body again later in the
-         // response parsers if everything is OK, we buffer the body into an
-         // InputStream we can reset
+         // As we need to read the response body to determine if there are errors, but we may need to process the body
+         // again later in the response parsers if everything is OK, we buffer the body into an InputStream we can reset
          InputStream in = null;
          InputStream originalInputStream = original.getPayload().openStream();
 
@@ -112,12 +107,12 @@ public class ResponseStatusFromPayloadHttpCommandExecutorService extends JavaUrl
          // Process the payload and look for errors
          BaseResponse responseContent = errorParser.apply(in);
          if (responseContent != null && responseContent.getStatus() == Status.ERROR) {
-            // Yes, this is ugly, but the DigitalOcean API sometimes sets the
-            // status code to 200 for these errors and the only way to know what
-            // happened is parsing the error message
-            if (ACCESS_DENIED.equals(responseContent.getMessage())) {
+            // Yes, this is ugly, but the DigitalOcean API sometimes sets the status code to 200 for these errors and
+            // the only way to know what happened is parsing the error message
+            String message = responseContent.getMessage();
+            if (ACCESS_DENIED.equals(message)) {
                response.statusCode(401);
-            } else if (NOT_FOUND.equals(responseContent.getMessage())) {
+            } else if (NOT_FOUND.equals(message)) {
                response.statusCode(404);
             } else {
                response.statusCode(500);

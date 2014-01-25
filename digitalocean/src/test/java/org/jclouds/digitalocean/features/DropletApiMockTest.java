@@ -86,7 +86,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testGetUnexistingDroplet() throws Exception {
+   public void testGetNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -174,7 +174,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testRebootUnexistingDroplet() throws Exception {
+   public void testRebootNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -184,7 +184,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.reboot(1);
-            fail("Transfer image should fail on 404");
+            fail("Reboot droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -214,7 +214,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testPowerCycleUnexistingDroplet() throws Exception {
+   public void testPowerCycleNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -224,7 +224,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.powerCycle(1);
-            fail("Transfer image should fail on 404");
+            fail("Power cycle droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -254,7 +254,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testShutdownUnexistingDroplet() throws Exception {
+   public void testShutdownNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -264,7 +264,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.shutdown(1);
-            fail("Transfer image should fail on 404");
+            fail("Shutdown droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -294,7 +294,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testPowerOffUnexistingDroplet() throws Exception {
+   public void testPowerOffNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -304,7 +304,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.powerOff(1);
-            fail("Transfer image should fail on 404");
+            fail("Power off droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -334,7 +334,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testPowerOnUnexistingDroplet() throws Exception {
+   public void testPowerOnNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -344,7 +344,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.powerOn(1);
-            fail("Transfer image should fail on 404");
+            fail("Power on droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -374,7 +374,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testResetPasswordForUnexistingDroplet() throws Exception {
+   public void testResetPasswordForNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -384,7 +384,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.resetPassword(1);
-            fail("Transfer image should fail on 404");
+            fail("Reset password for droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -414,7 +414,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testResizeUnexistingDroplet() throws Exception {
+   public void testResizeNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -424,7 +424,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.resize(1, 3);
-            fail("Transfer image should fail on 404");
+            fail("Resize droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -454,7 +454,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testSnapshotUnexistingDroplet() throws Exception {
+   public void testSnapshotNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -464,7 +464,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.snapshot(1);
-            fail("Transfer image should fail on 404");
+            fail("Snapshot droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -494,7 +494,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testSnapshotWithNameUnexistingDroplet() throws Exception {
+   public void testSnapshotWithNameNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -504,7 +504,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.snapshot(1, "foo");
-            fail("Transfer image should fail on 404");
+            fail("Snapshot droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -534,7 +534,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testRestoreUnexistingDroplet() throws Exception {
+   public void testRestoreNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -544,7 +544,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.restore(1, 3);
-            fail("Transfer image should fail on 404");
+            fail("Restore droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -574,7 +574,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testRebuildUnexistingDroplet() throws Exception {
+   public void testRebuildNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -584,7 +584,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.rebuild(1, 3);
-            fail("Transfer image should fail on 404");
+            fail("Rebuild droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -614,7 +614,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testRenameUnexistingDroplet() throws Exception {
+   public void testRenameNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -624,7 +624,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.rename(1, "foo");
-            fail("Transfer image should fail on 404");
+            fail("Rename droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -654,7 +654,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testDestroyUnexistingDroplet() throws Exception {
+   public void testDestroyNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -664,7 +664,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.destroy(1);
-            fail("Transfer image should fail on 404");
+            fail("Destroy droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }
@@ -695,7 +695,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       }
    }
 
-   public void testDestroyWithOptionsUnexistingDroplet() throws Exception {
+   public void testDestroyWithOptionsNonexistentDroplet() throws Exception {
       MockWebServer server = mockWebServer();
       server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -705,7 +705,7 @@ public class DropletApiMockTest extends BaseDigitalOceanMockTest {
       try {
          try {
             dropletApi.destroy(1, true);
-            fail("Transfer image should fail on 404");
+            fail("Destroy droplet should fail on 404");
          } catch (ResourceNotFoundException ex) {
             // Expected exception
          }

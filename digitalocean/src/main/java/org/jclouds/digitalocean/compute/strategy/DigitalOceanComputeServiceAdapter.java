@@ -19,6 +19,7 @@ package org.jclouds.digitalocean.compute.strategy;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_RUNNING;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_SUSPENDED;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_TERMINATED;
@@ -46,7 +47,6 @@ import org.jclouds.logging.Logger;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Iterables;
 
 /**
  * Implementation of the Compute Service for the DigitalOcean API.
@@ -85,7 +85,9 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
       DigitalOceanTemplateOptions templateOptions = template.getOptions().as(DigitalOceanTemplateOptions.class);
 
       CreateDropletOptions.Builder options = CreateDropletOptions.builder();
-      options.addSshKeyId(defaultCredentials.get().getKey().getId());
+      if (defaultCredentials.get().getKey().isPresent()) {
+         options.addSshKeyId(defaultCredentials.get().getKey().get().getId());
+      }
 
       // Check if there is a key to authorize in the portable options
       if (!Strings.isNullOrEmpty(template.getOptions().getPublicKey())) {
@@ -108,7 +110,7 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
 
       // Find the location where the Droplet has to be created
       final String locationId = template.getLocation().getId();
-      Region region = Iterables.find(api.getRegionApi().list(), new Predicate<Region>() {
+      Region region = find(api.getRegionApi().list(), new Predicate<Region>() {
          @Override
          public boolean apply(Region input) {
             return input.getSlug().equals(locationId);

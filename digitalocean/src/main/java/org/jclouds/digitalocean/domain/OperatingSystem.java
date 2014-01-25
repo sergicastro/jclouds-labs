@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 /**
  * The operating system of an image.
  * <p>
- * This class parses the <code>name</code> string (e.g. ""Ubuntu 12.10 x64"") of
- * the images and properly sets each field to the right value.
+ * This class parses the <code>name</code> string (e.g. ""Ubuntu 12.10 x64"") of the images and properly sets each field
+ * to the right value.
  * 
  * @author Sergi Castro
  * @author Ignasi Barrera
@@ -37,6 +37,7 @@ public class OperatingSystem {
    // Parse something like "Ubuntu 12.10 x64"
    private static final Pattern VERSION_PATTERN = compile("\\s(\\d+(?:\\.?\\d+)?)");
    private static final Pattern ARCH_PATTERN = compile("x\\d{2}");
+   private static final String IS_64_BIT = "x64";
 
    private final Distribution distribution;
    private final String version;
@@ -61,7 +62,7 @@ public class OperatingSystem {
    }
 
    public boolean is64bit() {
-      return "x64".equals(arch);
+      return IS_64_BIT.equals(arch);
    }
 
    public static Builder builder() {

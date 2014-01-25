@@ -34,12 +34,12 @@ import com.google.common.collect.ImmutableMap;
 @Singleton
 public class DropletStatusToStatus implements Function<Droplet.Status, Status> {
 
-   private static final Function<Droplet.Status, Status> toPortableStatus = Functions.forMap(//
-         ImmutableMap.<Droplet.Status, Status> builder() //
-               .put(Droplet.Status.NEW, Status.PENDING) //
-               .put(Droplet.Status.ACTIVE, Status.RUNNING) //
-               .put(Droplet.Status.ARCHIVE, Status.TERMINATED) //
-               .put(Droplet.Status.OFF, Status.SUSPENDED) //
+   private static final Function<Droplet.Status, Status> toPortableStatus = Functions.forMap(
+         ImmutableMap.<Droplet.Status, Status> builder()
+               .put(Droplet.Status.NEW, Status.PENDING)
+               .put(Droplet.Status.ACTIVE, Status.RUNNING)
+               .put(Droplet.Status.ARCHIVE, Status.TERMINATED)
+               .put(Droplet.Status.OFF, Status.SUSPENDED)
                .build(), //
          Status.UNRECOGNIZED);
 

@@ -45,11 +45,10 @@ import com.google.inject.name.Named;
 public interface EventApi extends Closeable {
 
    /**
-    * Get the details of a given event.
+    * Gets the details of a given event.
     * 
     * @param The id of the event to get.
-    * @return The details of the event or <code>null</code> if no event exists
-    *         with the given id.
+    * @return The details of the event or <code>null</code> if no event exists with the given id.
     */
    @Named("event:get")
    @GET

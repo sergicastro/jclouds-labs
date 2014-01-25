@@ -16,7 +16,7 @@
  */
 package org.jclouds.digitalocean.features;
 
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
 
 import java.util.List;
 
@@ -44,6 +44,6 @@ public class SizeApiLiveTest extends BaseDigitalOceanLiveTest {
    public void testListSizes() {
       List<Size> sizes = sizesApi.list();
 
-      assertTrue(sizes.size() > 0, "Size list should not be empty");
+      assertFalse(sizes.isEmpty(), "Size list should not be empty");
    }
 }
