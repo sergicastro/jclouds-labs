@@ -16,32 +16,24 @@
  */
 package org.jclouds.digitalocean.compute.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_IMAGE_AVAILABLE;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_RUNNING;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_SUSPENDED;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_TERMINATED;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
-import org.jclouds.compute.config.AdminAccessConfiguration;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadata.Status;
 import org.jclouds.compute.extensions.ImageExtension;
-import org.jclouds.compute.functions.GroupNamingConvention;
 import org.jclouds.compute.functions.TemplateOptionsToStatement;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.compute.reference.ComputeServiceConstants.PollPeriod;
 import org.jclouds.compute.reference.ComputeServiceConstants.Timeouts;
-import org.jclouds.compute.strategy.PopulateDefaultLoginCredentialsForImageStrategy;
 import org.jclouds.digitalocean.DigitalOceanApi;
 import org.jclouds.digitalocean.compute.extensions.DigitalOceanImageExtension;
 import org.jclouds.digitalocean.compute.functions.DropletStatusToStatus;
@@ -52,23 +44,17 @@ import org.jclouds.digitalocean.compute.functions.SizeToHardware;
 import org.jclouds.digitalocean.compute.functions.TemplateOptionsToStatementWithoutPublicKey;
 import org.jclouds.digitalocean.compute.options.DigitalOceanTemplateOptions;
 import org.jclouds.digitalocean.compute.strategy.DigitalOceanComputeServiceAdapter;
-import org.jclouds.digitalocean.compute.strategy.PopulateDefaultCredentialsToImage;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.Event;
 import org.jclouds.digitalocean.domain.Image;
 import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.domain.Size;
-import org.jclouds.digitalocean.domain.SshKey;
 import org.jclouds.domain.Location;
-import org.jclouds.domain.LoginCredentials;
-import org.jclouds.ssh.internal.RsaSshKeyPairGenerator;
 import org.jclouds.util.Predicates2;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -105,8 +91,6 @@ public class DigitalOceanComputeServiceContextModule extends
 
       bind(TemplateOptions.class).to(DigitalOceanTemplateOptions.class);
       bind(TemplateOptionsToStatement.class).to(TemplateOptionsToStatementWithoutPublicKey.class);
-
-      bind(PopulateDefaultLoginCredentialsForImageStrategy.class).to(PopulateDefaultCredentialsToImage.class);
 
       bind(new TypeLiteral<ImageExtension>() {
       }).to(DigitalOceanImageExtension.class);
@@ -171,67 +155,5 @@ public class DigitalOceanComputeServiceContextModule extends
             return Event.Status.DONE == event.getStatus();
          }
       }, timeouts.imageAvailable, pollPeriod.pollInitialPeriod, pollPeriod.pollMaxPeriod);
-   }
-
-   public static class DefaultImageCredetials {
-      private final Optional<SshKey> key;
-      private final LoginCredentials credentials;
-
-      public DefaultImageCredetials(Optional<SshKey> key, LoginCredentials credentials) {
-         this.key = checkNotNull(key, "key cannot be null");
-         this.credentials = checkNotNull(credentials, "credentials cannot be null");
-      }
-
-      public Optional<SshKey> getKey() {
-         return key;
-      }
-
-      public LoginCredentials getCredentials() {
-         return credentials;
-      }
-
-   }
-
-   @Provides
-   @Singleton
-   @Memoized
-   protected Supplier<DefaultImageCredetials> defaultLoginCredentials(final DigitalOceanApi api,
-         final RsaSshKeyPairGenerator rsaSshKeyPairGenerator, final GroupNamingConvention.Factory namingConvention,
-         final AdminAccessConfiguration.Default creds) {
-      return Suppliers.memoize(new Supplier<DefaultImageCredetials>() {
-         @Override
-         public DefaultImageCredetials get() {
-            Map<String, String> keyPair = rsaSshKeyPairGenerator.get();
-            List<SshKey> keys = api.getKeyPairApi().list();
-            SshKey key = null;
-
-            // Try to find an unused name and create a new keypair
-            for (int i = 0; i < 100 && key == null; i++) {
-               String name = namingConvention.create().uniqueNameForGroup("credentials");
-               boolean keyExists = false;
-
-               for (SshKey k : keys) {
-                  if (name.equals(k.getName())) {
-                     keyExists = true;
-                     break;
-                  }
-               }
-
-               if (!keyExists) {
-                  key = api.getKeyPairApi().create(name, keyPair.get("public"));
-               }
-            }
-
-            // If the keypair could not be created, the default credentials will only populate the username as the
-            // DigitalOcean provider will email the password to the user.
-            LoginCredentials.Builder builder = LoginCredentials.builder();
-            builder.user("root");
-            if (key != null) {
-               builder.privateKey(keyPair.get("private"));
-            }
-
-            return new DefaultImageCredetials(Optional.fromNullable(key), builder.build());
-         }
-      });
    }
 }

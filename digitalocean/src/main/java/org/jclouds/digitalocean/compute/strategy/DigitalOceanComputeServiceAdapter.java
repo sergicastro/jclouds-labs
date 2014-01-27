@@ -24,16 +24,16 @@ import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_R
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_SUSPENDED;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_TERMINATED;
 
+import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.digitalocean.DigitalOceanApi;
-import org.jclouds.digitalocean.compute.config.DigitalOceanComputeServiceContextModule.DefaultImageCredetials;
 import org.jclouds.digitalocean.compute.options.DigitalOceanTemplateOptions;
 import org.jclouds.digitalocean.domain.Droplet;
 import org.jclouds.digitalocean.domain.DropletCreation;
@@ -42,11 +42,12 @@ import org.jclouds.digitalocean.domain.Region;
 import org.jclouds.digitalocean.domain.Size;
 import org.jclouds.digitalocean.domain.SshKey;
 import org.jclouds.digitalocean.domain.options.CreateDropletOptions;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.logging.Logger;
+import org.jclouds.ssh.SshKeyPairGenerator;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
 
 /**
  * Implementation of the Compute Service for the DigitalOcean API.
@@ -61,19 +62,18 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    protected Logger logger = Logger.NULL;
 
    private final DigitalOceanApi api;
-   private final Supplier<DefaultImageCredetials> defaultCredentials;
+   private final SshKeyPairGenerator keyGenerator;
    private final Predicate<Integer> nodeRunningPredicate;
    private final Predicate<Integer> nodeStoppedPredicate;
    private final Predicate<Integer> nodeTerminatedPredicate;
 
    @Inject
-   DigitalOceanComputeServiceAdapter(DigitalOceanApi api,
-         @Memoized Supplier<DefaultImageCredetials> defaultCredentials,
+   DigitalOceanComputeServiceAdapter(DigitalOceanApi api, SshKeyPairGenerator keyGenerator,
          @Named(TIMEOUT_NODE_RUNNING) Predicate<Integer> nodeRunningPredicate,
          @Named(TIMEOUT_NODE_SUSPENDED) Predicate<Integer> nodeStoppedPredicate,
          @Named(TIMEOUT_NODE_TERMINATED) Predicate<Integer> nodeTerminatedPredicate) {
       this.api = checkNotNull(api, "api cannot be null");
-      this.defaultCredentials = checkNotNull(defaultCredentials, "defaultCredentials cannot be null");
+      this.keyGenerator = checkNotNull(keyGenerator, "keyGenerator cannot be null");
       this.nodeRunningPredicate = checkNotNull(nodeRunningPredicate, "nodeRunningPredicate cannot be null");
       this.nodeStoppedPredicate = checkNotNull(nodeStoppedPredicate, "nodeStoppedPredicate cannot be null");
       this.nodeTerminatedPredicate = checkNotNull(nodeTerminatedPredicate, "nodeTerminatedPredicate cannot be null");
@@ -83,15 +83,20 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
    public NodeAndInitialCredentials<Droplet> createNodeWithGroupEncodedIntoName(String group, final String name,
          Template template) {
       DigitalOceanTemplateOptions templateOptions = template.getOptions().as(DigitalOceanTemplateOptions.class);
-
       CreateDropletOptions.Builder options = CreateDropletOptions.builder();
-      if (defaultCredentials.get().getKey().isPresent()) {
-         options.addSshKeyId(defaultCredentials.get().getKey().get().getId());
-      }
+
+      // Create a default keypair for the node so it has a known private key
+      Map<String, String> defaultKeys = keyGenerator.get();
+      logger.debug(">> creating default keypair for node...");
+      SshKey defaultKey = api.getKeyPairApi().create(name, defaultKeys.get("public"));
+      logger.debug(">> keypair created! %s", defaultKey);
+      options.addSshKeyId(defaultKey.getId());
 
       // Check if there is a key to authorize in the portable options
       if (!Strings.isNullOrEmpty(template.getOptions().getPublicKey())) {
-         logger.debug(">> creating keypair for node...");
+         logger.debug(">> creating user keypair for node...");
+         // The DigitalOcean API accepts multiple key pairs with the same name. It will be useful to identify all
+         // keypairs associated with the node when it comes to destroy it
          SshKey key = api.getKeyPairApi().create(name, template.getOptions().getPublicKey());
          logger.debug(">> keypair created! %s", key);
          options.addSshKeyId(key.getId());
@@ -128,10 +133,10 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
       nodeRunningPredicate.apply(dropletCreation.getEventId());
       Droplet droplet = api.getDropletApi().get(dropletCreation.getId());
 
-      // Don't set the node credentials. If credentials are given in the
-      // options, those will be used. Otherwise, the credentials of the image
-      // will be used.
-      return new NodeAndInitialCredentials<Droplet>(droplet, String.valueOf(droplet.getId()), null);
+      LoginCredentials defaultCredentials = LoginCredentials.builder().user("root")
+            .privateKey(defaultKeys.get("private")).build();
+
+      return new NodeAndInitialCredentials<Droplet>(droplet, String.valueOf(droplet.getId()), defaultCredentials);
    }
 
    @Override
@@ -176,10 +181,26 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
 
    @Override
    public void destroyNode(String id) {
+      Droplet droplet = api.getDropletApi().get(Integer.valueOf(id));
+      final String nodeName = droplet.getName();
+
       // We have to wait here, as the api does not properly populate the state
       // but fails if there is a pending event
       int event = api.getDropletApi().destroy(Integer.valueOf(id), true);
       nodeTerminatedPredicate.apply(event);
+
+      // Destroy the keypairs created for the node
+      Iterable<SshKey> keys = filter(api.getKeyPairApi().list(), new Predicate<SshKey>() {
+         @Override
+         public boolean apply(SshKey input) {
+            return input.getName().equals(nodeName);
+         }
+      });
+
+      for (SshKey key : keys) {
+         logger.info(">> deleting keypair %s...", key);
+         api.getKeyPairApi().delete(key.getId());
+      }
    }
 
    @Override
