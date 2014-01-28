@@ -40,7 +40,7 @@ public class DropletStatusToStatus implements Function<Droplet.Status, Status> {
                .put(Droplet.Status.ACTIVE, Status.RUNNING)
                .put(Droplet.Status.ARCHIVE, Status.TERMINATED)
                .put(Droplet.Status.OFF, Status.SUSPENDED)
-               .build(), //
+               .build(), 
          Status.UNRECOGNIZED);
 
    @Override

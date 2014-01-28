@@ -47,13 +47,13 @@ public class ImageToImage implements Function<Image, org.jclouds.compute.domain.
 
       OperatingSystem os = input.getOs();
 
-      builder.operatingSystem(builder() //
-            .name(input.getName()) //
-            .family(os.getDistribution().getOsFamily()) //
-            .description(input.getName()) //
-            .arch(os.getArch()) //
-            .version(os.getVersion()) //
-            .is64Bit(os.is64bit()) //
+      builder.operatingSystem(builder() 
+            .name(input.getName()) 
+            .family(os.getDistribution().getOsFamily()) 
+            .description(input.getName()) 
+            .arch(os.getArch()) 
+            .version(os.getVersion()) 
+            .is64Bit(os.is64bit()) 
             .build());
 
       ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();

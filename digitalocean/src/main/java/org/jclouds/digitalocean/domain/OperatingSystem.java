@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * The operating system of an image.
  * <p>
- * This class parses the <code>name</code> string (e.g. ""Ubuntu 12.10 x64"") of the images and properly sets each field
+ * This class parses the <code>name</code> string (e.g. "Ubuntu 12.10 x64") of the images and properly sets each field
  * to the right value.
  * 
  * @author Sergi Castro

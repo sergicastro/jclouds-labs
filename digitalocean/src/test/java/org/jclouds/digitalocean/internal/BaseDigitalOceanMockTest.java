@@ -61,11 +61,11 @@ public class BaseDigitalOceanMockTest {
    }
 
    public DigitalOceanApi api(URL url) {
-      return ContextBuilder.newBuilder(provider) //
-            .credentials("clientid", "apikey") //
-            .endpoint(url.toString()) //
-            .modules(modules) //
-            .overrides(setupProperties()) //
+      return ContextBuilder.newBuilder(provider) 
+            .credentials("clientid", "apikey") 
+            .endpoint(url.toString()) 
+            .modules(modules) 
+            .overrides(setupProperties()) 
             .buildApi(DigitalOceanApi.class);
    }
 
@@ -94,10 +94,10 @@ public class BaseDigitalOceanMockTest {
 
    protected static void assertRequestHasParameters(final RecordedRequest request, final String path,
          Multimap<String, String> parameters) throws InterruptedException {
-      Multimap<String, String> allparams = ImmutableMultimap.<String, String> builder() //
-            .putAll(parameters) //
-            .put(IDENTITY_PARAM, "clientid") //
-            .put(CREDENTIAL_PARAM, "apikey") //
+      Multimap<String, String> allparams = ImmutableMultimap.<String, String> builder() 
+            .putAll(parameters) 
+            .put(IDENTITY_PARAM, "clientid") 
+            .put(CREDENTIAL_PARAM, "apikey") 
             .build();
 
       assertRequestHasAcceptHeader(request);

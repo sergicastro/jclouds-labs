@@ -123,10 +123,8 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
       });
 
       DropletCreation dropletCreation = api.getDropletApi().create(name,
-            Integer.parseInt(template.getImage().getProviderId()), //
-            Integer.parseInt(template.getHardware().getProviderId()),//
-            region.getId(), //
-            options.build());
+            Integer.parseInt(template.getImage().getProviderId()),
+            Integer.parseInt(template.getHardware().getProviderId()), region.getId(), options.build());
 
       // We have to actively wait until the droplet has been provisioned until
       // we can build the entire Droplet object we want to return
@@ -198,8 +196,12 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
       });
 
       for (SshKey key : keys) {
-         logger.info(">> deleting keypair %s...", key);
-         api.getKeyPairApi().delete(key.getId());
+         try {
+            logger.info(">> deleting keypair %s...", key);
+            api.getKeyPairApi().delete(key.getId());
+         } catch (Exception ex) {
+            logger.warn(ex, ">> could not delete keypair");
+         }
       }
    }
 

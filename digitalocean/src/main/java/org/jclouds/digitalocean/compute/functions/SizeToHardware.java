@@ -47,9 +47,9 @@ public class SizeToHardware implements Function<Size, Hardware> {
       // make the bigger template the faster.
       builder.processor(new Processor(input.getCpu(), input.getCpu()));
 
-      builder.volume(new VolumeBuilder() //
-            .size(Float.valueOf(input.getDisk())) //
-            .type(Type.LOCAL) //
+      builder.volume(new VolumeBuilder() 
+            .size(Float.valueOf(input.getDisk())) 
+            .type(Type.LOCAL) 
             .build());
 
       ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();
