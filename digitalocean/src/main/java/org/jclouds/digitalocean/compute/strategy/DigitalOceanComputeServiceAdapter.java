@@ -199,8 +199,8 @@ public class DigitalOceanComputeServiceAdapter implements ComputeServiceAdapter<
          try {
             logger.info(">> deleting keypair %s...", key);
             api.getKeyPairApi().delete(key.getId());
-         } catch (Exception ex) {
-            logger.warn(ex, ">> could not delete keypair");
+         } catch (RuntimeException ex) {
+            logger.warn(ex, ">> could not delete keypair %s. You can safely delete this key pair manually", key);
          }
       }
    }
